@@ -1336,3 +1336,334 @@ record "page2" {
         fixed = "</T30302000>"
     }
 }
+
+# ═══════════════════════════════════════════
+# Página 3 — Información adicional, resultado y devolución
+# ═══════════════════════════════════════════
+
+record "page3" {
+    record_length = 1079
+
+    # ------- Cabecera de página -------
+
+    # Inicio del identificador de modelo y página. Constante "<T".
+    field tag_start {
+        at = 1
+        length = 2
+        type = alphanumeric
+        fixed = "<T"
+    }
+
+    # Modelo. Constante "303".
+    field modelo {
+        at = 3
+        length = 3
+        type = number
+        fixed = "303"
+    }
+
+    # Página. Constante "03000".
+    field pagina {
+        at = 6
+        length = 5
+        type = number
+        fixed = "03000"
+    }
+
+    # Fin de identificador de modelo. Constante ">".
+    field tag_end {
+        at = 11
+        length = 1
+        type = alphanumeric
+        fixed = ">"
+    }
+
+    # ------- Información adicional -------
+
+    # Casilla [59]: Entregas intracomunitarias de bienes y servicios (con signo).
+    field c59_entregas_intracom {
+        at = 12
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [60]: Exportaciones y operaciones asimiladas (con signo).
+    field c60_exportaciones {
+        at = 29
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [61]: Operaciones no sujetas o con ISP que originan el derecho a deducción (con signo).
+    field c61_no_sujetas_con_derecho {
+        at = 46
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [120]: Operaciones no sujetas por reglas de localización (excepto las incluidas en [123]) (con signo).
+    field c120_no_sujetas_localizacion {
+        at = 63
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Reservado para la AEAT.
+    field _reservado_aeat_1 {
+        at = 80
+        length = 17
+        type = number
+    }
+
+    # Casilla [122]: Operaciones sujetas con inversión del sujeto pasivo (con signo).
+    field c122_sujetas_isp {
+        at = 97
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [123]: OSS — Operaciones no sujetas por reglas de localización acogidas a la OSS (con signo).
+    field c123_oss_no_sujetas {
+        at = 114
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [124]: OSS — Operaciones sujetas y acogidas a la OSS (con signo).
+    field c124_oss_sujetas {
+        at = 131
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [62]: Régimen especial del criterio de caja — Importes devengados art. 75 LIVA — Base imponible (con signo).
+    field c62_caja_devengado_base {
+        at = 148
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [63]: Régimen especial del criterio de caja — Importes devengados art. 75 LIVA — Cuota (con signo).
+    field c63_caja_devengado_cuota {
+        at = 165
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [74]: Régimen especial del criterio de caja — Cuotas soportadas según art. 75 LIVA — Base imponible (con signo).
+    field c74_caja_soportado_base {
+        at = 182
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [75]: Régimen especial del criterio de caja — Cuotas totales soportadas según art. 75 LIVA — Cuota (con signo).
+    field c75_caja_soportado_cuota {
+        at = 199
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # ------- Resultado -------
+
+    # Casilla [76]: Regularización cuotas art. 80.cinco.5ª LIVA (con signo).
+    field c76_regularizacion_80_5 {
+        at = 216
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [64]: Suma de resultados ([46]+[58]+[76]) (con signo).
+    field c64_suma_resultados {
+        at = 233
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [65]: % atribuible a la Administración del Estado.
+    field c65_porcentaje_estado {
+        at = 250
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [66]: Atribuible a la Administración del Estado (con signo).
+    field c66_atribuible_estado {
+        at = 255
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [77]: IVA a la importación liquidado por la Aduana pendiente de ingreso.
+    field c77_iva_importacion_aduana {
+        at = 272
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [110]: Cuotas a compensar pendientes de periodos anteriores.
+    field c110_cuotas_compensar_pendientes {
+        at = 289
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [78]: Cuotas a compensar de periodos anteriores aplicadas en este periodo.
+    field c78_cuotas_compensar_aplicadas {
+        at = 306
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [87]: Cuotas a compensar de periodos previos pendientes para periodos posteriores ([110]-[78]).
+    field c87_cuotas_compensar_posteriores {
+        at = 323
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [68]: Regularización anual (sujetos pasivos con Administración del Estado y Diputaciones Forales) (con signo).
+    field c68_regularizacion_anual {
+        at = 340
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [69]: Resultado ([66]+[77]-[78]+[68]) (con signo).
+    field c69_resultado {
+        at = 357
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [70]: A deducir (con signo).
+    field c70_a_deducir {
+        at = 374
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [71]: Resultado de la liquidación ([69]-[70]) (con signo).
+    field c71_resultado_liquidacion {
+        at = 391
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # ------- Declaración complementaria / sin actividad / devolución -------
+
+    # Declaración complementaria. "X" o blanco.
+    field declaracion_complementaria {
+        at = 408
+        length = 1
+        type = alphanumeric
+    }
+
+    # Número justificante declaración anterior.
+    field numero_justificante_anterior {
+        at = 409
+        length = 13
+        type = alphanumeric
+    }
+
+    # Declaración sin actividad. "X" o blanco.
+    field declaracion_sin_actividad {
+        at = 422
+        length = 1
+        type = alphanumeric
+    }
+
+    # Devolución — SWIFT-BIC.
+    field devolucion_swift_bic {
+        at = 423
+        length = 11
+        type = alphanumeric
+    }
+
+    # Domiciliación / devolución — IBAN.
+    field iban {
+        at = 434
+        length = 34
+        type = alphanumeric
+    }
+
+    # Reservado para la AEAT.
+    field _reservado_aeat_2 {
+        at = 468
+        length = 17
+        type = alphanumeric
+    }
+
+    # Devolución — Banco / Bank name.
+    field devolucion_banco_nombre {
+        at = 485
+        length = 70
+        type = alphanumeric
+    }
+
+    # Devolución — Dirección del banco / Bank address.
+    field devolucion_banco_direccion {
+        at = 555
+        length = 35
+        type = alphanumeric
+    }
+
+    # Devolución — Ciudad / City.
+    field devolucion_banco_ciudad {
+        at = 590
+        length = 30
+        type = alphanumeric
+    }
+
+    # Devolución — Código país / Country code.
+    field devolucion_banco_pais {
+        at = 620
+        length = 2
+        type = alphanumeric
+    }
+
+    # Devolución — Marca SEPA. Blanco, "0", "1", "2" o "3".
+    field devolucion_marca_sepa {
+        at = 622
+        length = 1
+        type = alphanumeric
+    }
+
+    # Reservado para la AEAT.
+    field _reservado_aeat_3 {
+        at = 623
+        length = 445
+        type = alphanumeric
+    }
+
+    # Indicador de fin de registro. Constante "</T30303000>".
+    field tag_fin_registro {
+        at = 1068
+        length = 12
+        type = alphanumeric
+        fixed = "</T30303000>"
+    }
+}
