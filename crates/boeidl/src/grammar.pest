@@ -53,6 +53,12 @@ mul_op      = { "*" | "/" }
 atom        = { func_call | int | string | ident | "(" ~ expr ~ ")" }
 func_call   = { ident ~ "(" ~ expr ~ ("," ~ expr)* ~ ")" }
 
+// ── record ─────────────────────────────────────────────────────────────
+record_block = { "record" ~ string ~ "{"
+    ~ (record_length_kv | field_block | derive_stmt | check_block)*
+    ~ "}" }
+record_length_kv = { "record_length" ~ "=" ~ int }
+
 // ── top-level file ─────────────────────────────────────────────────────
-item = _{ field_block | derive_stmt | check_block }
+item = _{ record_block | field_block | derive_stmt | check_block }
 file = { SOI ~ model_block ~ item* ~ EOI }
