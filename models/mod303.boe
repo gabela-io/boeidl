@@ -594,3 +594,745 @@ record "page1" {
         fixed = "</T30301000>"
     }
 }
+
+# ═══════════════════════════════════════════
+# Página 2 — Liquidación régimen simplificado (IVA)
+# ═══════════════════════════════════════════
+
+record "page2" {
+    record_length = 1706
+
+    # ------- Cabecera de página -------
+
+    # Inicio del identificador de modelo y página. Constante "<T".
+    field tag_start {
+        at = 1
+        length = 2
+        type = alphanumeric
+        fixed = "<T"
+    }
+
+    # Modelo. Constante "303".
+    field modelo {
+        at = 3
+        length = 3
+        type = number
+        fixed = "303"
+    }
+
+    # Página. Constante "02000".
+    field pagina {
+        at = 6
+        length = 5
+        type = number
+        fixed = "02000"
+    }
+
+    # Fin de identificador de modelo. Constante ">".
+    field tag_end {
+        at = 11
+        length = 1
+        type = alphanumeric
+        fixed = ">"
+    }
+
+    # Indicador de página complementaria.
+    field indicador_complementaria {
+        at = 12
+        length = 1
+        type = alpha
+    }
+
+    # ------- RS (A) Actividades agrícolas, ganaderas y forestales — Actividad 1 -------
+
+    # RS-A Actividad 1 — Código.
+    field rs_a1_codigo {
+        at = 13
+        length = 2
+        type = number
+    }
+
+    # RS-A Actividad 1 — Volumen de ingresos.
+    field rs_a1_volumen_ingresos {
+        at = 15
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-A Actividad 1 — Índice de cuota.
+    field rs_a1_indice_cuota {
+        at = 32
+        length = 6
+        type = unsigned_amount
+        decimals = 5
+    }
+
+    # RS-A Actividad 1 — Cuota devengada.
+    field rs_a1_cuota_devengada {
+        at = 38
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-A Actividad 1 — 1T/2T/3T — Porcentaje trimestral.
+    field rs_a1_porcentaje_trimestral {
+        at = 55
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-A Actividad 1 — 1T/2T/3T — Ingreso a cuenta [A].
+    field rs_a1_ingreso_cuenta {
+        at = 60
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-A Actividad 1 — 4T — Cuota soportada.
+    field rs_a1_cuota_soportada {
+        at = 77
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-A Actividad 1 — 4T — Cuota anual derivada del régimen simplificado [B] (con signo).
+    field rs_a1_cuota_anual_rs {
+        at = 94
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # ------- RS (A) Actividades agrícolas, ganaderas y forestales — Actividad 2 -------
+
+    # RS-A Actividad 2 — Código.
+    field rs_a2_codigo {
+        at = 111
+        length = 2
+        type = number
+    }
+
+    # RS-A Actividad 2 — Volumen de ingresos.
+    field rs_a2_volumen_ingresos {
+        at = 113
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-A Actividad 2 — Índice de cuota.
+    field rs_a2_indice_cuota {
+        at = 130
+        length = 6
+        type = unsigned_amount
+        decimals = 5
+    }
+
+    # RS-A Actividad 2 — Cuota devengada.
+    field rs_a2_cuota_devengada {
+        at = 136
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-A Actividad 2 — 1T/2T/3T — Porcentaje trimestral.
+    field rs_a2_porcentaje_trimestral {
+        at = 153
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-A Actividad 2 — 1T/2T/3T — Ingreso a cuenta [A].
+    field rs_a2_ingreso_cuenta {
+        at = 158
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-A Actividad 2 — 4T — Cuota soportada.
+    field rs_a2_cuota_soportada {
+        at = 175
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-A Actividad 2 — 4T — Cuota anual derivada del régimen simplificado [B] (con signo).
+    field rs_a2_cuota_anual_rs {
+        at = 192
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # ------- RS (B) Actividades en régimen simplificado (excepto a, g, f) — Actividad 1 -------
+
+    # RS-B Actividad 1 — Epígrafe IAE.
+    field rs_b1_epigrafe_iae {
+        at = 209
+        length = 4
+        type = alphanumeric
+    }
+
+    # RS-B Actividad 1 — Indicador auxiliar (epígrafes 691.9 y 722).
+    field rs_b1_indicador_auxiliar {
+        at = 213
+        length = 1
+        type = alphanumeric
+    }
+
+    # RS-B Actividad 1 — Módulo 1 — Nº Unidades.
+    field rs_b1_mod1_unidades {
+        at = 214
+        length = 10
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — Módulo 1 — Importe.
+    field rs_b1_mod1_importe {
+        at = 224
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — Módulo 2 — Nº Unidades.
+    field rs_b1_mod2_unidades {
+        at = 241
+        length = 10
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — Módulo 2 — Importe.
+    field rs_b1_mod2_importe {
+        at = 251
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — Módulo 3 — Nº Unidades.
+    field rs_b1_mod3_unidades {
+        at = 268
+        length = 10
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — Módulo 3 — Importe.
+    field rs_b1_mod3_importe {
+        at = 278
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — Módulo 4 — Nº Unidades.
+    field rs_b1_mod4_unidades {
+        at = 295
+        length = 10
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — Módulo 4 — Importe.
+    field rs_b1_mod4_importe {
+        at = 305
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — Módulo 5 — Nº Unidades.
+    field rs_b1_mod5_unidades {
+        at = 322
+        length = 10
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — Módulo 5 — Importe.
+    field rs_b1_mod5_importe {
+        at = 332
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — Módulo 6 — Nº Unidades.
+    field rs_b1_mod6_unidades {
+        at = 349
+        length = 10
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — Módulo 6 — Importe.
+    field rs_b1_mod6_importe {
+        at = 359
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — Módulo 7 — Nº Unidades.
+    field rs_b1_mod7_unidades {
+        at = 376
+        length = 10
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — Módulo 7 — Importe.
+    field rs_b1_mod7_importe {
+        at = 386
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — Cuota devengada operaciones corrientes [C].
+    field rs_b1_cuota_devengada_corrientes {
+        at = 403
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — Reducciones [D].
+    field rs_b1_reducciones {
+        at = 420
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — 1T/2T/3T — Índice corrector actividades de temporada [Z].
+    field rs_b1_123t_indice_temporada {
+        at = 437
+        length = 3
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — 1T/2T/3T — Porcentaje ingreso a cuenta [E].
+    field rs_b1_123t_porcentaje_ingreso {
+        at = 440
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — 1T/2T/3T — Ingreso a cuenta (([C]-[D])×[E]) [F].
+    field rs_b1_123t_ingreso_cuenta {
+        at = 445
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — 4T — Cuotas soportadas operaciones corrientes [G].
+    field rs_b1_4t_cuotas_soportadas {
+        at = 462
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — 4T — Índice corrector actividades de temporada [H].
+    field rs_b1_4t_indice_temporada {
+        at = 479
+        length = 3
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — 4T — RESULTADO (([C]-[D]-[G])×[H]) [I] (con signo).
+    field rs_b1_4t_resultado {
+        at = 482
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — 4T — Porcentaje cuota mínima [J].
+    field rs_b1_4t_porcentaje_cuota_minima {
+        at = 499
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — 4T — Devolución cuotas soportadas otros países [K].
+    field rs_b1_4t_devolucion_otros_paises {
+        at = 504
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — 4T — Cuota mínima [L].
+    field rs_b1_4t_cuota_minima {
+        at = 521
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 1 — 4T — Cuota anual derivada RS [M].
+    field rs_b1_4t_cuota_anual_rs {
+        at = 538
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # ------- RS (B) Actividades en régimen simplificado (excepto a, g, f) — Actividad 2 -------
+
+    # RS-B Actividad 2 — Epígrafe IAE.
+    field rs_b2_epigrafe_iae {
+        at = 555
+        length = 4
+        type = alphanumeric
+    }
+
+    # RS-B Actividad 2 — Indicador auxiliar (epígrafes 691.9 y 722).
+    field rs_b2_indicador_auxiliar {
+        at = 559
+        length = 1
+        type = alphanumeric
+    }
+
+    # RS-B Actividad 2 — Módulo 1 — Nº Unidades.
+    field rs_b2_mod1_unidades {
+        at = 560
+        length = 10
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — Módulo 1 — Importe.
+    field rs_b2_mod1_importe {
+        at = 570
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — Módulo 2 — Nº Unidades.
+    field rs_b2_mod2_unidades {
+        at = 587
+        length = 10
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — Módulo 2 — Importe.
+    field rs_b2_mod2_importe {
+        at = 597
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — Módulo 3 — Nº Unidades.
+    field rs_b2_mod3_unidades {
+        at = 614
+        length = 10
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — Módulo 3 — Importe.
+    field rs_b2_mod3_importe {
+        at = 624
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — Módulo 4 — Nº Unidades.
+    field rs_b2_mod4_unidades {
+        at = 641
+        length = 10
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — Módulo 4 — Importe.
+    field rs_b2_mod4_importe {
+        at = 651
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — Módulo 5 — Nº Unidades.
+    field rs_b2_mod5_unidades {
+        at = 668
+        length = 10
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — Módulo 5 — Importe.
+    field rs_b2_mod5_importe {
+        at = 678
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — Módulo 6 — Nº Unidades.
+    field rs_b2_mod6_unidades {
+        at = 695
+        length = 10
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — Módulo 6 — Importe.
+    field rs_b2_mod6_importe {
+        at = 705
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — Módulo 7 — Nº Unidades.
+    field rs_b2_mod7_unidades {
+        at = 722
+        length = 10
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — Módulo 7 — Importe.
+    field rs_b2_mod7_importe {
+        at = 732
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — Cuota devengada operaciones corrientes [C].
+    field rs_b2_cuota_devengada_corrientes {
+        at = 749
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — Reducciones [D].
+    field rs_b2_reducciones {
+        at = 766
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — 1T/2T/3T — Índice corrector actividades de temporada [Z].
+    field rs_b2_123t_indice_temporada {
+        at = 783
+        length = 3
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — 1T/2T/3T — Porcentaje ingreso a cuenta [E].
+    field rs_b2_123t_porcentaje_ingreso {
+        at = 786
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — 1T/2T/3T — Ingreso a cuenta (([C]-[D])×[E]) [F].
+    field rs_b2_123t_ingreso_cuenta {
+        at = 791
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — 4T — Cuotas soportadas operaciones corrientes [G].
+    field rs_b2_4t_cuotas_soportadas {
+        at = 808
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — 4T — Índice corrector actividades de temporada [H].
+    field rs_b2_4t_indice_temporada {
+        at = 825
+        length = 3
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — 4T — RESULTADO (([C]-[D]-[G])×[H]) [I] (con signo).
+    field rs_b2_4t_resultado {
+        at = 828
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — 4T — Porcentaje cuota mínima [J].
+    field rs_b2_4t_porcentaje_cuota_minima {
+        at = 845
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — 4T — Devolución cuotas soportadas otros países [K].
+    field rs_b2_4t_devolucion_otros_paises {
+        at = 850
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — 4T — Cuota mínima [L].
+    field rs_b2_4t_cuota_minima {
+        at = 867
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # RS-B Actividad 2 — 4T — Cuota anual derivada RS [M].
+    field rs_b2_4t_cuota_anual_rs {
+        at = 884
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # ------- Totales régimen simplificado -------
+
+    # Casilla [47]: RS (B) — 1T/2T/3T — Suma de ingresos a cuenta del conjunto de actividades.
+    field c47_rs_suma_ingresos_cuenta {
+        at = 901
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [48]: RS (A+B) — 4T — Suma de cuotas derivadas RS del conjunto de actividades (con signo).
+    field c48_rs_suma_cuotas_derivadas {
+        at = 918
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [49]: RS (A+B) — 4T — Suma de ingresos a cuenta realizados en el ejercicio.
+    field c49_rs_suma_ingresos_ejercicio {
+        at = 935
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [50]: RS (A+B) — 4T — Resultado ([48]-[49]) (con signo).
+    field c50_rs_resultado {
+        at = 952
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [51]: RS — Cuotas devengadas — Adquisiciones intracomunitarias de bienes (con signo).
+    field c51_rs_aib {
+        at = 969
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [52]: RS — Cuotas devengadas — Entregas de activos fijos (con signo).
+    field c52_rs_entregas_activos_fijos {
+        at = 986
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [53]: RS — Cuotas devengadas — IVA devengado por inversión del sujeto pasivo (con signo).
+    field c53_rs_isp {
+        at = 1003
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [54]: RS — Total cuota resultante (si 1T/2T/3T: [47]+[51]+[52]+[53]; si 4T: [50]+[51]+[52]+[53]) (con signo).
+    field c54_rs_total_cuota_resultante {
+        at = 1020
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [55]: RS — IVA deducible — Adquisición o importación de activos fijos (con signo).
+    field c55_rs_activos_fijos {
+        at = 1037
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [56]: RS — IVA deducible — Regularización bienes de inversión (con signo).
+    field c56_rs_regularizacion_inversion {
+        at = 1054
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [57]: RS — IVA deducible — Total IVA deducible ([55]+[56]) (con signo).
+    field c57_rs_total_iva_deducible {
+        at = 1071
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [58]: RS — Resultado ([54]-[57]) (con signo).
+    field c58_rs_resultado_rs {
+        at = 1088
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # ------- Reservados -------
+
+    # Reservado para la AEAT.
+    field _reservado_aeat {
+        at = 1105
+        length = 590
+        type = alphanumeric
+    }
+
+    # Indicador de fin de registro. Constante "</T30302000>".
+    field tag_fin_registro {
+        at = 1695
+        length = 12
+        type = alphanumeric
+        fixed = "</T30302000>"
+    }
+}
