@@ -45,10 +45,15 @@ def map_type(tipo: str, contenido: str | None):
         return ("alphanumeric", None)
     if t == "A":
         return ("alpha", None)
-    if t in ("Num", "N"):
+    if t == "Num":
         m = DECIMALS_RE.search(c)
         if m:
             return ("unsigned_amount", int(m.group(2)))
+        return ("number", None)
+    if t == "N":
+        m = DECIMALS_RE.search(c)
+        if m:
+            return ("signed_amount", int(m.group(2)))
         return ("number", None)
     return ("alphanumeric", None)
 

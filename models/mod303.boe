@@ -308,7 +308,7 @@ record "page1" {
     field c14_mod_base {
         at = 315
         length = 17
-        type = unsigned_amount
+        type = signed_amount
         decimals = 2
     }
 
@@ -316,7 +316,7 @@ record "page1" {
     field c15_mod_cuota {
         at = 332
         length = 17
-        type = unsigned_amount
+        type = signed_amount
         decimals = 2
     }
 
@@ -396,7 +396,7 @@ record "page1" {
     field c25_mod_req_base {
         at = 466
         length = 17
-        type = unsigned_amount
+        type = signed_amount
         decimals = 2
     }
 
@@ -404,7 +404,7 @@ record "page1" {
     field c26_mod_req_cuota {
         at = 483
         length = 17
-        type = unsigned_amount
+        type = signed_amount
         decimals = 2
     }
 
@@ -412,7 +412,7 @@ record "page1" {
     field c27_total_cuota_devengada {
         at = 500
         length = 17
-        type = unsigned_amount
+        type = signed_amount
         decimals = 2
     }
 
@@ -518,7 +518,7 @@ record "page1" {
     field c40_rect_base {
         at = 721
         length = 17
-        type = unsigned_amount
+        type = signed_amount
         decimals = 2
     }
 
@@ -526,7 +526,7 @@ record "page1" {
     field c41_rect_cuota {
         at = 738
         length = 17
-        type = unsigned_amount
+        type = signed_amount
         decimals = 2
     }
 
@@ -534,7 +534,7 @@ record "page1" {
     field c42_compensaciones_reagp {
         at = 755
         length = 17
-        type = unsigned_amount
+        type = signed_amount
         decimals = 2
     }
 
@@ -542,7 +542,7 @@ record "page1" {
     field c43_regularizacion_inversiones {
         at = 772
         length = 17
-        type = unsigned_amount
+        type = signed_amount
         decimals = 2
     }
 
@@ -550,7 +550,7 @@ record "page1" {
     field c44_regularizacion_prorrata {
         at = 789
         length = 17
-        type = unsigned_amount
+        type = signed_amount
         decimals = 2
     }
 
@@ -558,7 +558,7 @@ record "page1" {
     field c45_total_a_deducir {
         at = 806
         length = 17
-        type = unsigned_amount
+        type = signed_amount
         decimals = 2
     }
 
@@ -566,7 +566,7 @@ record "page1" {
     field c46_resultado_rg {
         at = 823
         length = 17
-        type = unsigned_amount
+        type = signed_amount
         decimals = 2
     }
 
