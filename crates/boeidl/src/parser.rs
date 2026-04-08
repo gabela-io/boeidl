@@ -64,8 +64,18 @@ pub fn parse(src: &str) -> Result<BoeFile, ParseError> {
 
 fn parse_model(pair: Pair<Rule>) -> Result<Model, ParseError> {
     let mut inner = pair.into_inner();
-    let number = unquote(inner.next().ok_or_else(|| err("model: missing number"))?.as_str());
-    let version = unquote(inner.next().ok_or_else(|| err("model: missing version"))?.as_str());
+    let number = unquote(
+        inner
+            .next()
+            .ok_or_else(|| err("model: missing number"))?
+            .as_str(),
+    );
+    let version = unquote(
+        inner
+            .next()
+            .ok_or_else(|| err("model: missing version"))?
+            .as_str(),
+    );
 
     let mut encoding: Option<Encoding> = None;
     let mut line_ending: Option<LineEnding> = None;
@@ -113,7 +123,11 @@ fn parse_model(pair: Pair<Rule>) -> Result<Model, ParseError> {
 
 fn key_value(attr: Pair<Rule>) -> Result<(String, Pair<Rule>), ParseError> {
     let mut parts = attr.into_inner();
-    let key = parts.next().ok_or_else(|| err("attr: missing key"))?.as_str().to_string();
+    let key = parts
+        .next()
+        .ok_or_else(|| err("attr: missing key"))?
+        .as_str()
+        .to_string();
     let value = parts.next().ok_or_else(|| err("attr: missing value"))?;
     Ok((key, value))
 }
@@ -148,12 +162,22 @@ fn parse_field(pair: Pair<Rule>) -> Result<Field, ParseError> {
             .next()
             .ok_or_else(|| err("field attr: empty value"))?;
         match (key.as_str(), v.as_rule()) {
-            ("at", Rule::int) => at = Some(v.as_str().parse().map_err(|e| err(format!("at: {e}")))?),
+            ("at", Rule::int) => {
+                at = Some(v.as_str().parse().map_err(|e| err(format!("at: {e}")))?)
+            }
             ("length", Rule::int) => {
-                length = Some(v.as_str().parse().map_err(|e| err(format!("length: {e}")))?)
+                length = Some(
+                    v.as_str()
+                        .parse()
+                        .map_err(|e| err(format!("length: {e}")))?,
+                )
             }
             ("decimals", Rule::int) => {
-                decimals = Some(v.as_str().parse().map_err(|e| err(format!("decimals: {e}")))?)
+                decimals = Some(
+                    v.as_str()
+                        .parse()
+                        .map_err(|e| err(format!("decimals: {e}")))?,
+                )
             }
             ("type", Rule::ident) => {
                 ty = Some(match v.as_str() {
@@ -303,9 +327,7 @@ fn parse_cmp_expr(pair: Pair<Rule>) -> Result<BoolExpr, ParseError> {
     // cmp_expr = { expr ~ (cmp_op ~ expr)? }
     let mut inner = pair.into_inner();
     let lhs = parse_expr(inner.next().ok_or_else(|| err("cmp_expr: missing lhs"))?)?;
-    let op_pair = inner
-        .next()
-        .ok_or_else(|| err("cmp_expr: missing op"))?;
+    let op_pair = inner.next().ok_or_else(|| err("cmp_expr: missing op"))?;
     let op = match op_pair.as_str() {
         "==" => CmpOp::Eq,
         "!=" => CmpOp::Ne,
@@ -334,7 +356,9 @@ fn parse_expr(pair: Pair<Rule>) -> Result<Expr, ParseError> {
         }),
         Rule::atom => parse_atom(pair),
         Rule::int => Ok(Expr::Int(
-            pair.as_str().parse().map_err(|e| err(format!("int: {e}")))?,
+            pair.as_str()
+                .parse()
+                .map_err(|e| err(format!("int: {e}")))?,
         )),
         Rule::ident => Ok(Expr::Ident(pair.as_str().to_string())),
         Rule::string => Ok(Expr::Str(unquote(pair.as_str()))),
@@ -361,10 +385,7 @@ where
 }
 
 fn parse_atom(pair: Pair<Rule>) -> Result<Expr, ParseError> {
-    let inner = pair
-        .into_inner()
-        .next()
-        .ok_or_else(|| err("atom: empty"))?;
+    let inner = pair.into_inner().next().ok_or_else(|| err("atom: empty"))?;
     parse_expr(inner)
 }
 
@@ -379,9 +400,7 @@ fn parse_func_call(pair: Pair<Rule>) -> Result<Expr, ParseError> {
         "min" => BuiltinFn::Min,
         other => return Err(err(format!("unknown function: {other}"))),
     };
-    let args = inner
-        .map(parse_expr)
-        .collect::<Result<Vec<_>, _>>()?;
+    let args = inner.map(parse_expr).collect::<Result<Vec<_>, _>>()?;
     Ok(Expr::Call(func, args))
 }
 

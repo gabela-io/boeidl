@@ -59,7 +59,11 @@ pub fn encode_signed_amount(
     decimals: usize,
 ) -> Result<String, AeatError> {
     if width == 0 {
-        return Err(AeatError::FieldOverflow { field: field.to_string(), width, got: 1 });
+        return Err(AeatError::FieldOverflow {
+            field: field.to_string(),
+            width,
+            got: 1,
+        });
     }
     let sign = if value < 0 { 'N' } else { ' ' };
     let abs = value.unsigned_abs();
@@ -107,7 +111,9 @@ mod tests {
     fn encode_number_overflows() {
         let err = encode_number("x", 1000, 3).unwrap_err();
         match err {
-            AeatError::FieldOverflow { width: 3, got: 4, .. } => {}
+            AeatError::FieldOverflow {
+                width: 3, got: 4, ..
+            } => {}
             other => panic!("unexpected: {other:?}"),
         }
     }
@@ -137,7 +143,9 @@ mod tests {
         // 5 chars total → 4 digits max → 99999 overflows.
         let err = encode_signed_amount("x", 99999, 5, 0).unwrap_err();
         match err {
-            AeatError::FieldOverflow { width: 5, got: 6, .. } => {}
+            AeatError::FieldOverflow {
+                width: 5, got: 6, ..
+            } => {}
             other => panic!("unexpected: {other:?}"),
         }
     }

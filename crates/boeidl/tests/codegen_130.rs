@@ -95,7 +95,10 @@ fn validate_emits_checks() {
 #[test]
 fn golden_snapshot() {
     let src = gen();
-    let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../../testdata/mod130_expected.rs");
+    let path = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../testdata/mod130_expected.rs"
+    );
     if std::env::var("UPDATE_GOLDEN").is_ok() {
         std::fs::create_dir_all(std::path::Path::new(path).parent().unwrap()).unwrap();
         std::fs::write(path, &src).unwrap();

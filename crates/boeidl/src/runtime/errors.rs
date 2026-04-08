@@ -3,7 +3,11 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AeatError {
     /// The serialized value does not fit in the declared field width.
-    FieldOverflow { field: String, width: usize, got: usize },
+    FieldOverflow {
+        field: String,
+        width: usize,
+        got: usize,
+    },
     /// A required field was empty/missing at marshal time.
     MissingRequired { field: String },
     /// An invalid value for a field (e.g. not in `domain`).

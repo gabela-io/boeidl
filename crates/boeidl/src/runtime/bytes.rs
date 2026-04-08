@@ -7,7 +7,13 @@ use super::errors::AeatError;
 
 /// Write `s` into `buf` starting at 1-indexed position `at`, encoding each
 /// char as its ISO-8859-1 byte (`c as u32` must be < 256).
-pub fn write_field(buf: &mut [u8], at: usize, width: usize, s: &str, field: &str) -> Result<(), AeatError> {
+pub fn write_field(
+    buf: &mut [u8],
+    at: usize,
+    width: usize,
+    s: &str,
+    field: &str,
+) -> Result<(), AeatError> {
     let start = at - 1;
     let mut n = 0;
     for c in s.chars() {

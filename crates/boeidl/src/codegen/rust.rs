@@ -40,7 +40,11 @@ impl<'a> Context<'a> {
             .iter()
             .map(|f| (f.name.as_str(), f.ty))
             .collect();
-        Self { file, struct_name, field_types }
+        Self {
+            file,
+            struct_name,
+            field_types,
+        }
     }
 
     /// Fields that appear as members of the generated struct.
@@ -95,23 +99,13 @@ fn rust_type_for(ty: FieldType) -> &'static str {
 }
 
 fn emit_struct(out: &mut String, ctx: &Context) {
-    writeln!(
-        out,
-        "#[derive(Debug, Clone, Default, PartialEq, Eq)]"
-    )
-    .unwrap();
+    writeln!(out, "#[derive(Debug, Clone, Default, PartialEq, Eq)]").unwrap();
     writeln!(out, "pub struct {} {{", ctx.struct_name).unwrap();
     for f in ctx.struct_fields() {
         if let Some(desc) = &f.description {
             writeln!(out, "    /// {}", desc).unwrap();
         }
-        writeln!(
-            out,
-            "    pub {}: {},",
-            f.name,
-            rust_type_for(f.ty)
-        )
-        .unwrap();
+        writeln!(out, "    pub {}: {},", f.name, rust_type_for(f.ty)).unwrap();
     }
     writeln!(out, "}}").unwrap();
     writeln!(out).unwrap();
@@ -129,7 +123,11 @@ fn emit_impl(out: &mut String, file: &BoeFile, ctx: &Context) {
 // ── marshal ────────────────────────────────────────────────────────────
 
 fn emit_marshal(out: &mut String, file: &BoeFile) {
-    writeln!(out, "    pub fn marshal(&self) -> Result<Vec<u8>, AeatError> {{").unwrap();
+    writeln!(
+        out,
+        "    pub fn marshal(&self) -> Result<Vec<u8>, AeatError> {{"
+    )
+    .unwrap();
     writeln!(
         out,
         "        let mut buf: Vec<u8> = vec![b' '; RECORD_LENGTH];"
@@ -284,11 +282,7 @@ fn emit_compute_derived(out: &mut String, file: &BoeFile, ctx: &Context) {
 // ── validate ───────────────────────────────────────────────────────────
 
 fn emit_validate(out: &mut String, file: &BoeFile, ctx: &Context) {
-    writeln!(
-        out,
-        "    pub fn validate(&self) -> Vec<AeatDiagnostic> {{"
-    )
-    .unwrap();
+    writeln!(out, "    pub fn validate(&self) -> Vec<AeatDiagnostic> {{").unwrap();
     writeln!(out, "        let mut diags = Vec::new();").unwrap();
     for c in &file.checks {
         let rule = emit_bool(&c.rule, ctx);
@@ -326,12 +320,7 @@ fn emit_expr(e: &Expr, ctx: &Context) -> String {
                 BinOp::Mul => "*",
                 BinOp::Div => "/",
             };
-            format!(
-                "({} {} {})",
-                emit_expr(a, ctx),
-                op_s,
-                emit_expr(b, ctx)
-            )
+            format!("({} {} {})", emit_expr(a, ctx), op_s, emit_expr(b, ctx))
         }
         Expr::Call(f, args) => {
             let name = match f {
@@ -355,12 +344,7 @@ fn emit_bool(b: &BoolExpr, ctx: &Context) -> String {
                 CmpOp::Ge => ">=",
                 CmpOp::Le => "<=",
             };
-            format!(
-                "({} {} {})",
-                emit_expr(a, ctx),
-                op_s,
-                emit_expr(b, ctx)
-            )
+            format!("({} {} {})", emit_expr(a, ctx), op_s, emit_expr(b, ctx))
         }
         BoolExpr::Implies(l, r) => {
             format!("(!({}) || ({}))", emit_bool(l, ctx), emit_bool(r, ctx))

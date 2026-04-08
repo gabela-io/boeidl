@@ -1,5 +1,5 @@
-use boeidl::validator::{validate, DiagLevel};
 use boeidl::parse;
+use boeidl::validator::{validate, DiagLevel};
 
 const MOD130: &str = include_str!("../../../models/mod130.boe");
 
@@ -15,7 +15,10 @@ fn errors_of(src: &str) -> Vec<String> {
 #[test]
 fn mod130_has_no_errors() {
     let errors = errors_of(MOD130);
-    assert!(errors.is_empty(), "unexpected errors in mod130.boe: {errors:#?}");
+    assert!(
+        errors.is_empty(),
+        "unexpected errors in mod130.boe: {errors:#?}"
+    );
 }
 
 #[test]
@@ -74,7 +77,9 @@ derive c = a - nonexistent
 "#;
     let errors = errors_of(src);
     assert!(
-        errors.iter().any(|m| m.contains("unknown field `nonexistent`")),
+        errors
+            .iter()
+            .any(|m| m.contains("unknown field `nonexistent`")),
         "got: {errors:?}"
     );
 }

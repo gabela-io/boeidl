@@ -27,10 +27,16 @@ pub struct Diagnostic {
 
 impl Diagnostic {
     fn error(msg: impl Into<String>) -> Self {
-        Self { level: DiagLevel::Error, message: msg.into() }
+        Self {
+            level: DiagLevel::Error,
+            message: msg.into(),
+        }
     }
     fn warning(msg: impl Into<String>) -> Self {
-        Self { level: DiagLevel::Warning, message: msg.into() }
+        Self {
+            level: DiagLevel::Warning,
+            message: msg.into(),
+        }
     }
 }
 
@@ -43,7 +49,10 @@ pub fn validate(file: &BoeFile) -> Vec<Diagnostic> {
     let mut seen_names: HashSet<&str> = HashSet::new();
     for (i, f) in file.fields.iter().enumerate() {
         if !seen_names.insert(f.name.as_str()) {
-            diags.push(Diagnostic::error(format!("duplicate field name `{}`", f.name)));
+            diags.push(Diagnostic::error(format!(
+                "duplicate field name `{}`",
+                f.name
+            )));
         }
         order.insert(f.name.as_str(), i);
 
@@ -116,8 +125,7 @@ pub fn validate(file: &BoeFile) -> Vec<Diagnostic> {
     if !sorted.is_empty() && cursor < expected {
         diags.push(Diagnostic::warning(format!(
             "trailing gap: positions {}..{} are not covered",
-            cursor,
-            file.model.record_length
+            cursor, file.model.record_length
         )));
     }
 

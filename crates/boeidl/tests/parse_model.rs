@@ -46,5 +46,8 @@ model "130" version "2015-v11" {
 }
 "#;
     let err = parse(src).unwrap_err();
-    assert!(err.to_string().contains("encoding"), "unexpected error: {err}");
+    assert!(
+        err.to_string().contains("encoding"),
+        "unexpected error: {err}"
+    );
 }

@@ -105,10 +105,7 @@ fn validate_passes_on_consistent_record() {
     let m = make_valid();
     let diags = m.validate();
     // E301, E302, E303 should all pass. W001 may warn only if tipo='N' and c19>0.
-    assert!(
-        diags.is_empty(),
-        "expected no diagnostics, got: {diags:?}"
-    );
+    assert!(diags.is_empty(), "expected no diagnostics, got: {diags:?}");
 }
 
 #[test]

@@ -10,7 +10,11 @@ use boeidl::codegen::rust::generate;
 use boeidl::validator::{validate, DiagLevel};
 
 #[derive(Parser)]
-#[command(name = "boeidl", about = "DSL compiler for AEAT fixed-position file formats", version)]
+#[command(
+    name = "boeidl",
+    about = "DSL compiler for AEAT fixed-position file formats",
+    version
+)]
 struct Cli {
     #[command(subcommand)]
     cmd: Cmd,
@@ -27,13 +31,9 @@ enum Cmd {
         out: PathBuf,
     },
     /// Parse and validate a .boe file without generating code.
-    Check {
-        input: PathBuf,
-    },
+    Check { input: PathBuf },
     /// Print a human-readable table of fields, positions, and validations.
-    Inspect {
-        input: PathBuf,
-    },
+    Inspect { input: PathBuf },
 }
 
 fn main() -> ExitCode {
@@ -56,8 +56,8 @@ fn run(cli: Cli) -> Result<(), String> {
 }
 
 fn load(input: &Path) -> Result<BoeFile, String> {
-    let src = std::fs::read_to_string(input)
-        .map_err(|e| format!("reading {}: {e}", input.display()))?;
+    let src =
+        std::fs::read_to_string(input).map_err(|e| format!("reading {}: {e}", input.display()))?;
     let file = boeidl::parse(&src).map_err(|e| format!("parse: {e}"))?;
     let diags = validate(&file);
     let errors: Vec<_> = diags
@@ -81,8 +81,7 @@ fn load(input: &Path) -> Result<BoeFile, String> {
 fn cmd_compile(input: &Path, out_dir: &Path) -> Result<(), String> {
     let file = load(input)?;
     let src = generate(&file);
-    std::fs::create_dir_all(out_dir)
-        .map_err(|e| format!("creating {}: {e}", out_dir.display()))?;
+    std::fs::create_dir_all(out_dir).map_err(|e| format!("creating {}: {e}", out_dir.display()))?;
     let out_path = out_dir.join(format!("mod{}.rs", file.model.number));
     std::fs::write(&out_path, src).map_err(|e| format!("writing {}: {e}", out_path.display()))?;
     eprintln!("wrote {}", out_path.display());
@@ -97,11 +96,17 @@ fn cmd_check(input: &Path) -> Result<(), String> {
 
 fn cmd_inspect(input: &Path) -> Result<(), String> {
     let file = load(input)?;
-    println!("Modelo {} (version {})", file.model.number, file.model.version);
+    println!(
+        "Modelo {} (version {})",
+        file.model.number, file.model.version
+    );
     println!("Encoding: {:?}", file.model.encoding);
     println!("Record length: {}", file.model.record_length);
     println!();
-    println!("{:<4} {:<32} {:<6} {:<6} {:<14} {:<14} Usage", "#", "Name", "At", "Len", "Type", "Fixed");
+    println!(
+        "{:<4} {:<32} {:<6} {:<6} {:<14} {:<14} Usage",
+        "#", "Name", "At", "Len", "Type", "Fixed"
+    );
     println!("{}", "─".repeat(100));
     for (i, f) in file.fields.iter().enumerate() {
         println!(
@@ -111,7 +116,10 @@ fn cmd_inspect(input: &Path) -> Result<(), String> {
             f.at,
             f.length,
             field_type_name(f),
-            f.fixed.as_deref().map(|s| truncate(s, 14)).unwrap_or_default(),
+            f.fixed
+                .as_deref()
+                .map(|s| truncate(s, 14))
+                .unwrap_or_default(),
             usage_name(f.usage),
         );
     }
