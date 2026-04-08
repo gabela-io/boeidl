@@ -2014,3 +2014,553 @@ record "page4" {
         fixed = "</T30304000>"
     }
 }
+
+# ═══════════════════════════════════════════
+# Página 5 — Prorratas y Régimen de deducciones diferenciadas
+# ═══════════════════════════════════════════
+
+record "page5" {
+    record_length = 1523
+
+    # ------- Cabecera de página -------
+
+    # Inicio del identificador de modelo y página. Constante "<T".
+    field tag_start {
+        at = 1
+        length = 2
+        type = alphanumeric
+        fixed = "<T"
+    }
+
+    # Modelo. Constante "303".
+    field modelo {
+        at = 3
+        length = 3
+        type = number
+        fixed = "303"
+    }
+
+    # Página. Constante "05000".
+    field pagina {
+        at = 6
+        length = 5
+        type = number
+        fixed = "05000"
+    }
+
+    # Fin de identificador de modelo. Constante ">".
+    field tag_end {
+        at = 11
+        length = 1
+        type = alphanumeric
+        fixed = ">"
+    }
+
+    # Indicador de página complementaria.
+    field indicador_complementaria {
+        at = 12
+        length = 1
+        type = alpha
+    }
+
+    # ------- Prorratas -------
+
+    # Casilla [500]: Prorrata 1 — Código CNAE.
+    field c500_p1_cnae {
+        at = 13
+        length = 3
+        type = alphanumeric
+    }
+
+    # Casilla [501]: Prorrata 1 — Importe de operaciones (con signo).
+    field c501_p1_importe_operaciones {
+        at = 16
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [502]: Prorrata 1 — Importe de operaciones con derecho a deducción (con signo).
+    field c502_p1_importe_con_derecho {
+        at = 33
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [503]: Prorrata 1 — Tipo de prorrata ("G", "E" o blanco).
+    field c503_p1_tipo_prorrata {
+        at = 50
+        length = 1
+        type = alpha
+    }
+
+    # Casilla [504]: Prorrata 1 — % de prorrata.
+    field c504_p1_porcentaje {
+        at = 51
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [505]: Prorrata 2 — Código CNAE.
+    field c505_p2_cnae {
+        at = 56
+        length = 3
+        type = alphanumeric
+    }
+
+    # Casilla [506]: Prorrata 2 — Importe de operaciones (con signo).
+    field c506_p2_importe_operaciones {
+        at = 59
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [507]: Prorrata 2 — Importe de operaciones con derecho a deducción (con signo).
+    field c507_p2_importe_con_derecho {
+        at = 76
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [508]: Prorrata 2 — Tipo de prorrata ("G", "E" o blanco).
+    field c508_p2_tipo_prorrata {
+        at = 93
+        length = 1
+        type = alpha
+    }
+
+    # Casilla [509]: Prorrata 2 — % de prorrata.
+    field c509_p2_porcentaje {
+        at = 94
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [510]: Prorrata 3 — Código CNAE.
+    field c510_p3_cnae {
+        at = 99
+        length = 3
+        type = alphanumeric
+    }
+
+    # Casilla [511]: Prorrata 3 — Importe de operaciones (con signo).
+    field c511_p3_importe_operaciones {
+        at = 102
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [512]: Prorrata 3 — Importe de operaciones con derecho a deducción (con signo).
+    field c512_p3_importe_con_derecho {
+        at = 119
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [513]: Prorrata 3 — Tipo de prorrata ("G", "E" o blanco).
+    field c513_p3_tipo_prorrata {
+        at = 136
+        length = 1
+        type = alpha
+    }
+
+    # Casilla [514]: Prorrata 3 — % de prorrata.
+    field c514_p3_porcentaje {
+        at = 137
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [515]: Prorrata 4 — Código CNAE.
+    field c515_p4_cnae {
+        at = 142
+        length = 3
+        type = alphanumeric
+    }
+
+    # Casilla [516]: Prorrata 4 — Importe de operaciones (con signo).
+    field c516_p4_importe_operaciones {
+        at = 145
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [517]: Prorrata 4 — Importe de operaciones con derecho a deducción (con signo).
+    field c517_p4_importe_con_derecho {
+        at = 162
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [518]: Prorrata 4 — Tipo de prorrata ("G", "E" o blanco).
+    field c518_p4_tipo_prorrata {
+        at = 179
+        length = 1
+        type = alpha
+    }
+
+    # Casilla [519]: Prorrata 4 — % de prorrata.
+    field c519_p4_porcentaje {
+        at = 180
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [520]: Prorrata 5 — Código CNAE.
+    field c520_p5_cnae {
+        at = 185
+        length = 3
+        type = alphanumeric
+    }
+
+    # Casilla [521]: Prorrata 5 — Importe de operaciones (con signo).
+    field c521_p5_importe_operaciones {
+        at = 188
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [522]: Prorrata 5 — Importe de operaciones con derecho a deducción (con signo).
+    field c522_p5_importe_con_derecho {
+        at = 205
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [523]: Prorrata 5 — Tipo de prorrata ("G", "E" o blanco).
+    field c523_p5_tipo_prorrata {
+        at = 222
+        length = 1
+        type = alpha
+    }
+
+    # Casilla [524]: Prorrata 5 — % de prorrata.
+    field c524_p5_porcentaje {
+        at = 223
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # ------- Régimen de deducciones diferenciadas — Sector 1 -------
+
+    # Casilla [700]: Sector 1 — IVA ded. operaciones interiores — bienes y servicios — Base imponible.
+    field c700_s1_int_bs_base {
+        at = 228
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [701]: Sector 1 — IVA ded. operaciones interiores — bienes y servicios — Cuota deducible.
+    field c701_s1_int_bs_cuota {
+        at = 245
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [702]: Sector 1 — IVA ded. operaciones interiores — bienes de inversión — Base imponible.
+    field c702_s1_int_inv_base {
+        at = 262
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [703]: Sector 1 — IVA ded. operaciones interiores — bienes de inversión — Cuota deducible.
+    field c703_s1_int_inv_cuota {
+        at = 279
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [704]: Sector 1 — IVA ded. importaciones — bienes corrientes — Base imponible.
+    field c704_s1_imp_corr_base {
+        at = 296
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [705]: Sector 1 — IVA ded. importaciones — bienes corrientes — Cuota deducible.
+    field c705_s1_imp_corr_cuota {
+        at = 313
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [706]: Sector 1 — IVA ded. importaciones — bienes de inversión — Base imponible.
+    field c706_s1_imp_inv_base {
+        at = 330
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [707]: Sector 1 — IVA ded. importaciones — bienes de inversión — Cuota deducible.
+    field c707_s1_imp_inv_cuota {
+        at = 347
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [708]: Sector 1 — IVA ded. adquisiciones intracomunitarias — bienes corrientes — Base imponible.
+    field c708_s1_aib_corr_base {
+        at = 364
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [709]: Sector 1 — IVA ded. adquisiciones intracomunitarias — bienes corrientes — Cuota deducible.
+    field c709_s1_aib_corr_cuota {
+        at = 381
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [710]: Sector 1 — IVA ded. adquisiciones intracomunitarias — bienes de inversión — Base imponible.
+    field c710_s1_aib_inv_base {
+        at = 398
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [711]: Sector 1 — IVA ded. adquisiciones intracomunitarias — bienes de inversión — Cuota deducible.
+    field c711_s1_aib_inv_cuota {
+        at = 415
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [712]: Sector 1 — Compensaciones régimen especial agric./ganad./pesca — Base imponible.
+    field c712_s1_reagp_base {
+        at = 432
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [713]: Sector 1 — Compensaciones régimen especial agric./ganad./pesca — Cuota deducible.
+    field c713_s1_reagp_cuota {
+        at = 449
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [714]: Sector 1 — Rectificación de deducciones — Base imponible (con signo).
+    field c714_s1_rect_base {
+        at = 466
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [715]: Sector 1 — Rectificación de deducciones — Cuota deducible (con signo).
+    field c715_s1_rect_cuota {
+        at = 483
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [716]: Sector 1 — Regularización de inversiones (con signo).
+    field c716_s1_regularizacion_inversiones {
+        at = 500
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [717]: Sector 1 — Suma de deducciones (con signo).
+    field c717_s1_suma_deducciones {
+        at = 517
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # ------- Régimen de deducciones diferenciadas — Sector 2 -------
+
+    # Casilla [718]: Sector 2 — IVA ded. operaciones interiores — bienes y servicios — Base imponible.
+    field c718_s2_int_bs_base {
+        at = 534
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [719]: Sector 2 — IVA ded. operaciones interiores — bienes y servicios — Cuota deducible.
+    field c719_s2_int_bs_cuota {
+        at = 551
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [720]: Sector 2 — IVA ded. operaciones interiores — bienes de inversión — Base imponible.
+    field c720_s2_int_inv_base {
+        at = 568
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [721]: Sector 2 — IVA ded. operaciones interiores — bienes de inversión — Cuota deducible.
+    field c721_s2_int_inv_cuota {
+        at = 585
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [722]: Sector 2 — IVA ded. importaciones — bienes corrientes — Base imponible.
+    field c722_s2_imp_corr_base {
+        at = 602
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [723]: Sector 2 — IVA ded. importaciones — bienes corrientes — Cuota deducible.
+    field c723_s2_imp_corr_cuota {
+        at = 619
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [724]: Sector 2 — IVA ded. importaciones — bienes de inversión — Base imponible.
+    field c724_s2_imp_inv_base {
+        at = 636
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [725]: Sector 2 — IVA ded. importaciones — bienes de inversión — Cuota deducible.
+    field c725_s2_imp_inv_cuota {
+        at = 653
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [726]: Sector 2 — IVA ded. adquisiciones intracomunitarias — bienes corrientes — Base imponible.
+    field c726_s2_aib_corr_base {
+        at = 670
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [727]: Sector 2 — IVA ded. adquisiciones intracomunitarias — bienes corrientes — Cuota deducible.
+    field c727_s2_aib_corr_cuota {
+        at = 687
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [728]: Sector 2 — IVA ded. adquisiciones intracomunitarias — bienes de inversión — Base imponible.
+    field c728_s2_aib_inv_base {
+        at = 704
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [729]: Sector 2 — IVA ded. adquisiciones intracomunitarias — bienes de inversión — Cuota deducible.
+    field c729_s2_aib_inv_cuota {
+        at = 721
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [730]: Sector 2 — Compensaciones régimen especial agric./ganad./pesca — Base imponible.
+    field c730_s2_reagp_base {
+        at = 738
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [731]: Sector 2 — Compensaciones régimen especial agric./ganad./pesca — Cuota deducible.
+    field c731_s2_reagp_cuota {
+        at = 755
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [732]: Sector 2 — Rectificación de deducciones — Base imponible (con signo).
+    field c732_s2_rect_base {
+        at = 772
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [733]: Sector 2 — Rectificación de deducciones — Cuota deducible (con signo).
+    field c733_s2_rect_cuota {
+        at = 789
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [734]: Sector 2 — Regularización de inversiones (con signo).
+    field c734_s2_regularizacion_inversiones {
+        at = 806
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [735]: Sector 2 — Suma de deducciones (con signo).
+    field c735_s2_suma_deducciones {
+        at = 823
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # ------- Reservados -------
+
+    # Reservado para la AEAT.
+    field _reservado_aeat {
+        at = 840
+        length = 672
+        type = alphanumeric
+    }
+
+    # Indicador de fin de registro. Constante "</T30305000>".
+    field tag_fin_registro {
+        at = 1512
+        length = 12
+        type = alphanumeric
+        fixed = "</T30305000>"
+    }
+}
