@@ -39,29 +39,94 @@ pub fn parse(src: &str) -> Result<BoeFile, ParseError> {
     let mut fields = Vec::new();
     let mut derives = Vec::new();
     let mut checks = Vec::new();
+    let mut records: Vec<Record> = Vec::new();
+    let mut saw_top_level_item = false;
 
     for pair in file.into_inner() {
         match pair.as_rule() {
             Rule::model_block => model = Some(parse_model(pair)?),
-            Rule::field_block => fields.push(parse_field(pair)?),
-            Rule::derive_stmt => derives.push(parse_derive(pair)?),
-            Rule::check_block => checks.push(parse_check(pair)?),
+            Rule::field_block => {
+                saw_top_level_item = true;
+                fields.push(parse_field(pair)?);
+            }
+            Rule::derive_stmt => {
+                saw_top_level_item = true;
+                derives.push(parse_derive(pair)?);
+            }
+            Rule::check_block => {
+                saw_top_level_item = true;
+                checks.push(parse_check(pair)?);
+            }
+            Rule::record_block => records.push(parse_record_block(pair)?),
             Rule::EOI => {}
             r => return Err(err(format!("unexpected rule at top level: {r:?}"))),
         }
     }
 
     let model = model.ok_or_else(|| err("missing `model` block"))?;
-    let synthesized = Record {
-        name: format!("mod{}", model.number),
-        record_length: model.record_length,
+
+    if !records.is_empty() && saw_top_level_item {
+        return Err(err(
+            "cannot mix top-level fields with record blocks",
+        ));
+    }
+
+    let records = if !records.is_empty() {
+        records
+    } else {
+        vec![Record {
+            name: format!("mod{}", model.number),
+            record_length: model.record_length,
+            fields,
+            derives,
+            checks,
+        }]
+    };
+    Ok(BoeFile { model, records })
+}
+
+fn parse_record_block(pair: Pair<Rule>) -> Result<Record, ParseError> {
+    let mut inner = pair.into_inner();
+    let name = unquote(
+        inner
+            .next()
+            .ok_or_else(|| err("record: missing name"))?
+            .as_str(),
+    );
+
+    let mut record_length: Option<usize> = None;
+    let mut fields = Vec::new();
+    let mut derives = Vec::new();
+    let mut checks = Vec::new();
+
+    for child in inner {
+        match child.as_rule() {
+            Rule::record_length_kv => {
+                let int_pair = child
+                    .into_inner()
+                    .next()
+                    .ok_or_else(|| err("record_length: missing value"))?;
+                record_length = Some(
+                    int_pair
+                        .as_str()
+                        .parse()
+                        .map_err(|e| err(format!("record_length: {e}")))?,
+                );
+            }
+            Rule::field_block => fields.push(parse_field(child)?),
+            Rule::derive_stmt => derives.push(parse_derive(child)?),
+            Rule::check_block => checks.push(parse_check(child)?),
+            r => return Err(err(format!("unexpected rule in record block: {r:?}"))),
+        }
+    }
+
+    Ok(Record {
+        name: name.clone(),
+        record_length: record_length
+            .ok_or_else(|| err(format!("record `{name}`: missing `record_length`")))?,
         fields,
         derives,
         checks,
-    };
-    Ok(BoeFile {
-        model,
-        records: vec![synthesized],
     })
 }
 
