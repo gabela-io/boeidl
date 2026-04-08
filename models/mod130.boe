@@ -1,0 +1,454 @@
+# Modelo 130 — Pago fraccionado IRPF
+# Fuente: Diseño de registro DR130e15v11.xls (AEAT, ejercicio 2015, versión 11 — vigente)
+# Registro único de 878 caracteres + CRLF = 880 bytes
+
+model "130" version "2015-v11" {
+    encoding = "ISO-8859-1"
+    line_ending = "CRLF"
+    record_length = 878
+}
+
+# ═══════════════════════════════════════════
+# Cabecera e identificación (campos 1-11)
+# ═══════════════════════════════════════════
+
+field modelo {
+    at = 1
+    length = 3
+    type = number
+    required = true
+    fixed = "130"
+    description = "Modelo. Constante '130'."
+}
+
+field pagina {
+    at = 4
+    length = 2
+    type = number
+    required = true
+    fixed = "01"
+    usage = print_only
+    description = "Página. Constante '01'."
+}
+
+field indicador_complementaria {
+    at = 6
+    length = 1
+    type = alpha
+    fixed = " "
+    usage = print_only
+    description = "Indicador de página complementaria. En blanco."
+}
+
+field tipo_declaracion {
+    at = 7
+    length = 1
+    type = alpha
+    required = true
+    usage = internet_only
+    domain = "B|G|I|N|U"
+    description = "Tipo declaración: B=a deducir, G=CCC-ingreso, I=ingreso, N=negativa, U=domiciliación."
+}
+
+field codigo_administracion {
+    at = 8
+    length = 5
+    type = number
+    usage = print_only
+    description = "Código Administración. Incluido en fichero ADMON.TXT."
+}
+
+field nif {
+    at = 13
+    length = 9
+    type = alphanumeric
+    required = true
+    description = "NIF del declarante. Cualquier NIF válido de persona física."
+}
+
+field comienzo_apellido {
+    at = 22
+    length = 4
+    type = alphanumeric
+    required = true
+    usage = internet_only
+    description = "Comienzo del primer apellido en personas físicas."
+}
+
+field apellidos {
+    at = 26
+    length = 30
+    type = alphanumeric
+    description = "Apellidos del declarante."
+}
+
+field nombre {
+    at = 56
+    length = 15
+    type = alpha
+    description = "Nombre del declarante."
+}
+
+field ejercicio {
+    at = 71
+    length = 4
+    type = number
+    required = true
+    description = "Ejercicio fiscal (AAAA)."
+}
+
+field periodo {
+    at = 75
+    length = 2
+    type = alphanumeric
+    required = true
+    domain = "1T|2T|3T|4T"
+    description = "Periodo: 1T, 2T, 3T o 4T."
+}
+
+# ═══════════════════════════════════════════
+# I. Actividades económicas estimación directa (campos 12-18)
+# ═══════════════════════════════════════════
+
+field c01_ingresos {
+    at = 77
+    length = 13
+    type = signed_amount
+    decimals = 2
+    description = "Casilla [01]: Ingresos computables del conjunto de actividades."
+}
+
+field c02_gastos {
+    at = 90
+    length = 13
+    type = signed_amount
+    decimals = 2
+    description = "Casilla [02]: Gastos fiscalmente deducibles."
+}
+
+field c03_rendimiento_neto {
+    at = 103
+    length = 13
+    type = signed_amount
+    decimals = 2
+    description = "Casilla [03]: Rendimiento neto (c01 - c02)."
+}
+
+field c04_20pct {
+    at = 116
+    length = 13
+    type = signed_amount
+    decimals = 2
+    description = "Casilla [04]: 20% de la casilla [03]."
+}
+
+field c05_deducir_anteriores {
+    at = 129
+    length = 13
+    type = signed_amount
+    decimals = 2
+    description = "Casilla [05]: A deducir de los trimestres anteriores."
+}
+
+field c06_retenciones {
+    at = 142
+    length = 13
+    type = signed_amount
+    decimals = 2
+    description = "Casilla [06]: A deducir retenciones e ingresos a cuenta."
+}
+
+field c07_pago_fraccionado {
+    at = 155
+    length = 13
+    type = signed_amount
+    decimals = 2
+    description = "Casilla [07]: Pago fraccionado previo del trimestre."
+}
+
+# ═══════════════════════════════════════════
+# II. Actividades agrícolas estimación directa (campos 19-22)
+# ═══════════════════════════════════════════
+
+field c08_ingresos_agricola {
+    at = 168
+    length = 13
+    type = signed_amount
+    decimals = 2
+    description = "Casilla [08]: Volumen de ingresos actividades agrícolas/ganaderas/forestales."
+}
+
+field c09_2pct {
+    at = 181
+    length = 13
+    type = signed_amount
+    decimals = 2
+    description = "Casilla [09]: 2% de la casilla [08]."
+}
+
+field c10_retenciones_agricola {
+    at = 194
+    length = 13
+    type = signed_amount
+    decimals = 2
+    description = "Casilla [10]: A deducir retenciones e ingresos a cuenta (agrícola)."
+}
+
+field c11_pago_agricola {
+    at = 207
+    length = 13
+    type = signed_amount
+    decimals = 2
+    description = "Casilla [11]: Pago fraccionado previo del trimestre (agrícola)."
+}
+
+# ═══════════════════════════════════════════
+# III. Total liquidación (campos 23-30)
+# ═══════════════════════════════════════════
+
+field c12_suma_pagos {
+    at = 220
+    length = 13
+    type = signed_amount
+    decimals = 2
+    description = "Casilla [12]: Suma de pagos fraccionados previos del trimestre."
+}
+
+field c13_minoracion_80bis {
+    at = 233
+    length = 13
+    type = signed_amount
+    decimals = 2
+    description = "Casilla [13]: Minoración por aplicación deducción art. 80 bis."
+}
+
+field c14_diferencia {
+    at = 246
+    length = 13
+    type = signed_amount
+    decimals = 2
+    description = "Casilla [14]: Diferencia [12] - [13]."
+}
+
+field c15_negativos_anteriores {
+    at = 259
+    length = 13
+    type = signed_amount
+    decimals = 2
+    description = "Casilla [15]: A deducir resultados negativos de trimestres anteriores."
+}
+
+field c16_vivienda {
+    at = 272
+    length = 13
+    type = signed_amount
+    decimals = 2
+    description = "Casilla [16]: Pago de préstamos para adquisición de vivienda habitual."
+}
+
+field c17_total {
+    at = 285
+    length = 13
+    type = signed_amount
+    decimals = 2
+    description = "Casilla [17]: Total [14] - [15] - [16]."
+}
+
+field c18_anteriores_declaraciones {
+    at = 298
+    length = 13
+    type = signed_amount
+    decimals = 2
+    description = "Casilla [18]: A deducir resultado de las anteriores declaraciones."
+}
+
+field c19_resultado {
+    at = 311
+    length = 13
+    type = signed_amount
+    decimals = 2
+    description = "Casilla [19]: Resultado de la declaración."
+}
+
+# ═══════════════════════════════════════════
+# Ingreso (campos 31-36)
+# ═══════════════════════════════════════════
+
+field importe_ingreso {
+    at = 324
+    length = 13
+    type = signed_amount
+    decimals = 2
+    description = "Importe del ingreso [I]."
+}
+
+field forma_pago {
+    at = 337
+    length = 1
+    type = number
+    domain = "0|1|2|3"
+    description = "Forma de pago: 0=no consta, 1=efectivo, 2=adeudo en cuenta, 3=domiciliación."
+}
+
+field ccc_entidad {
+    at = 338
+    length = 4
+    type = alphanumeric
+    description = "Código cuenta cliente — Entidad."
+}
+
+field ccc_sucursal {
+    at = 342
+    length = 4
+    type = alphanumeric
+    description = "Código cuenta cliente — Sucursal."
+}
+
+field ccc_dc {
+    at = 346
+    length = 2
+    type = alphanumeric
+    description = "Código cuenta cliente — DC."
+}
+
+field ccc_cuenta {
+    at = 348
+    length = 10
+    type = alphanumeric
+    description = "Código cuenta cliente — Número de cuenta."
+}
+
+# ═══════════════════════════════════════════
+# A deducir y complementaria (campos 37-39)
+# ═══════════════════════════════════════════
+
+field resultado_a_deducir {
+    at = 358
+    length = 1
+    type = alphanumeric
+    domain = " |X"
+    description = "Declaración con resultado a deducir en los siguientes pagos fraccionados."
+}
+
+field codigo_electronico_anterior {
+    at = 359
+    length = 16
+    type = alphanumeric
+    usage = internet_only
+    description = "Código electrónico de la declaración anterior (complementaria)."
+}
+
+field justificante_anterior {
+    at = 375
+    length = 13
+    type = alphanumeric
+    description = "Número de justificante de la declaración anterior (complementaria)."
+}
+
+# ═══════════════════════════════════════════
+# Contacto y observaciones (campos 40-42)
+# ═══════════════════════════════════════════
+
+field persona_contacto {
+    at = 388
+    length = 100
+    type = alphanumeric
+    required = true
+    usage = internet_only
+    description = "Persona de contacto."
+}
+
+field telefono {
+    at = 488
+    length = 9
+    type = alphanumeric
+    required = true
+    usage = internet_only
+    description = "Teléfono de contacto."
+}
+
+field observaciones {
+    at = 497
+    length = 350
+    type = alphanumeric
+    usage = internet_only
+    description = "Observaciones."
+}
+
+# ═══════════════════════════════════════════
+# Firma — solo impresión (campos 43-46)
+# ═══════════════════════════════════════════
+
+field firma_localidad {
+    at = 847
+    length = 16
+    type = alpha
+    usage = print_only
+    description = "Localidad de firma."
+}
+
+field firma_dia {
+    at = 863
+    length = 2
+    type = alphanumeric
+    usage = print_only
+    description = "Día de firma."
+}
+
+field firma_mes {
+    at = 865
+    length = 10
+    type = alpha
+    usage = print_only
+    description = "Mes de firma."
+}
+
+field firma_anio {
+    at = 875
+    length = 4
+    type = alphanumeric
+    usage = print_only
+    description = "Año de firma."
+}
+
+# ═══════════════════════════════════════════
+# Derivaciones
+# ═══════════════════════════════════════════
+
+derive c03_rendimiento_neto = c01_ingresos - c02_gastos
+derive c04_20pct = max(c03_rendimiento_neto, 0) * 20 / 100
+derive c07_pago_fraccionado = c04_20pct - c05_deducir_anteriores - c06_retenciones
+derive c09_2pct = c08_ingresos_agricola * 2 / 100
+derive c11_pago_agricola = c09_2pct - c10_retenciones_agricola
+derive c12_suma_pagos = c07_pago_fraccionado + c11_pago_agricola
+derive c14_diferencia = c12_suma_pagos - c13_minoracion_80bis
+derive c17_total = c14_diferencia - c15_negativos_anteriores - c16_vivienda
+derive c19_resultado = c17_total - c18_anteriores_declaraciones
+
+# ═══════════════════════════════════════════
+# Validaciones cruzadas
+# ═══════════════════════════════════════════
+
+check E301 {
+    rule = c03_rendimiento_neto == c01_ingresos - c02_gastos
+    severity = error
+    message = "Rendimiento neto [03] debe ser [01] - [02]."
+}
+
+check E302 {
+    rule = c04_20pct == max(c03_rendimiento_neto, 0) * 20 / 100
+    severity = error
+    message = "Casilla [04] debe ser 20% de [03] si [03] > 0."
+}
+
+check E303 {
+    rule = c19_resultado == c17_total - c18_anteriores_declaraciones
+    severity = error
+    message = "Resultado [19] debe ser [17] - [18]."
+}
+
+check W001 {
+    rule = tipo_declaracion == "N" implies c19_resultado <= 0
+    severity = warning
+    message = "Si la declaración es negativa, el resultado [19] debería ser <= 0."
+}

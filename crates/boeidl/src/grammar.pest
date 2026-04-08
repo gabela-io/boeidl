@@ -1,7 +1,4 @@
-// boeidl — PEG grammar for the .boe DSL
-//
-// Scope (batch 1): only `model` block. Field/derive/check will be added
-// in subsequent batches per the spec's implementation order.
+// boeidl — PEG grammar for the .boe DSL.
 
 WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
 COMMENT    = _{ "#" ~ (!NEWLINE ~ ANY)* }
@@ -11,9 +8,51 @@ string = ${ "\"" ~ inner ~ "\"" }
 inner  = @{ (!"\"" ~ ANY)* }
 int    = @{ ASCII_DIGIT+ }
 
-// ── model block ─────────────────────────────────────────────────────────
+// ── model ──────────────────────────────────────────────────────────────
 model_block = { "model" ~ string ~ "version" ~ string ~ "{" ~ model_attr* ~ "}" }
 model_attr  = { ident ~ "=" ~ (string | int) }
 
-// ── top-level file ──────────────────────────────────────────────────────
-file = { SOI ~ model_block ~ EOI }
+// ── field ──────────────────────────────────────────────────────────────
+// field <name> { key = value ... }
+// Values can be: ident (bareword like `left`, `number`, `true`), string, int.
+field_block = { "field" ~ ident ~ "{" ~ field_attr* ~ "}" }
+field_attr  = { ident ~ "=" ~ field_value }
+field_value = { string | int | ident }
+
+// ── derive ─────────────────────────────────────────────────────────────
+// derive <target> = <expr>
+derive_stmt = { "derive" ~ ident ~ "=" ~ expr }
+
+// ── check ──────────────────────────────────────────────────────────────
+// check <code> { rule = <bool_expr>  severity = ident  message = string }
+check_block = { "check" ~ ident ~ "{" ~ check_attr* ~ "}" }
+check_attr  = { ident ~ "=" ~ check_value }
+check_value = { bool_expr | string | ident }
+
+// ── expressions ────────────────────────────────────────────────────────
+// Numeric expressions: + - * / with max/min function calls and ident/int atoms.
+// Boolean expressions used in `check.rule`: comparisons + implies.
+//
+// Precedence (low → high):
+//   implies
+//   comparison (== != > < >= <=)
+//   additive (+ -)
+//   multiplicative (* /)
+//   unary/atom
+
+bool_expr   = { cmp_expr ~ ("implies" ~ cmp_expr)* }
+cmp_expr    = { expr ~ cmp_op ~ expr }
+cmp_op      = { "==" | "!=" | ">=" | "<=" | ">" | "<" }
+
+expr        = { add_expr }
+add_expr    = { mul_expr ~ (add_op ~ mul_expr)* }
+add_op      = { "+" | "-" }
+mul_expr    = { atom ~ (mul_op ~ atom)* }
+mul_op      = { "*" | "/" }
+
+atom        = { func_call | int | string | ident | "(" ~ expr ~ ")" }
+func_call   = { ident ~ "(" ~ expr ~ ("," ~ expr)* ~ ")" }
+
+// ── top-level file ─────────────────────────────────────────────────────
+item = _{ field_block | derive_stmt | check_block }
+file = { SOI ~ model_block ~ item* ~ EOI }
