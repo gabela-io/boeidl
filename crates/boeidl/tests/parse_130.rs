@@ -14,10 +14,10 @@ fn parses_full_mod130() {
     assert_eq!(file.model.record_length, 878);
 
     // 46 fields per the DR130e15v11 design
-    assert_eq!(file.fields.len(), 46, "expected 46 fields");
+    assert_eq!(file.records[0].fields.len(), 46, "expected 46 fields");
 
     // spot-check a few
-    let by_name = |n: &str| file.fields.iter().find(|f| f.name == n).unwrap();
+    let by_name = |n: &str| file.records[0].fields.iter().find(|f| f.name == n).unwrap();
 
     let modelo = by_name("modelo");
     assert_eq!(modelo.at, 1);
@@ -39,23 +39,23 @@ fn parses_full_mod130() {
     assert_eq!(tipo_declaracion.domain.as_deref(), Some("B|G|I|N|U"));
 
     // 9 derives
-    assert_eq!(file.derives.len(), 9);
-    assert_eq!(file.derives[0].target, "c03_rendimiento_neto");
+    assert_eq!(file.records[0].derives.len(), 9);
+    assert_eq!(file.records[0].derives[0].target, "c03_rendimiento_neto");
 
     // 4 checks (E301, E302, E303, W001)
-    assert_eq!(file.checks.len(), 4);
-    let codes: Vec<_> = file.checks.iter().map(|c| c.code.as_str()).collect();
+    assert_eq!(file.records[0].checks.len(), 4);
+    let codes: Vec<_> = file.records[0].checks.iter().map(|c| c.code.as_str()).collect();
     assert_eq!(codes, vec!["E301", "E302", "E303", "W001"]);
 
     // Severity distribution
-    assert_eq!(file.checks[0].severity, Severity::Error);
-    assert_eq!(file.checks[3].severity, Severity::Warning);
+    assert_eq!(file.records[0].checks[0].severity, Severity::Error);
+    assert_eq!(file.records[0].checks[3].severity, Severity::Warning);
 }
 
 #[test]
 fn implies_rule_shape() {
     let file = parse(MOD130).unwrap();
-    let w001 = file.checks.iter().find(|c| c.code == "W001").unwrap();
+    let w001 = file.records[0].checks.iter().find(|c| c.code == "W001").unwrap();
     match &w001.rule {
         BoolExpr::Implies(lhs, rhs) => {
             // lhs: tipo_declaracion == "N"
@@ -82,7 +82,7 @@ fn implies_rule_shape() {
 fn derive_expr_shape() {
     let file = parse(MOD130).unwrap();
     // c04_20pct = max(c03_rendimiento_neto, 0) * 20 / 100
-    let d = file
+    let d = file.records[0]
         .derives
         .iter()
         .find(|d| d.target == "c04_20pct")

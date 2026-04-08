@@ -12,37 +12,94 @@ use crate::ast::*;
 /// Rust module (no surrounding `mod`) and should be written to e.g.
 /// `src/generated/mod130.rs`.
 pub fn generate(file: &BoeFile) -> String {
-    let ctx = Context::new(file);
     let mut out = String::new();
 
     emit_header(&mut out, file);
     emit_constants(&mut out, file);
-    emit_struct(&mut out, &ctx);
-    emit_impl(&mut out, file, &ctx);
+    let single = file.records.len() == 1;
+    for r in &file.records {
+        emit_record(&mut out, &file.model, r, single);
+    }
 
+    out
+}
+
+fn struct_name(model_number: &str, record_name: &str) -> String {
+    if record_name.starts_with("mod") {
+        pascal_case(record_name)
+    } else {
+        format!("Mod{}{}", model_number, pascal_case(record_name))
+    }
+}
+
+fn pascal_case(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    let mut upper = true;
+    for ch in s.chars() {
+        if ch == '_' || ch == '-' {
+            upper = true;
+        } else if upper {
+            out.extend(ch.to_uppercase());
+            upper = false;
+        } else {
+            out.push(ch);
+        }
+    }
+    out
+}
+
+fn record_length_const_name(record_name: &str, single: bool) -> String {
+    if single {
+        "RECORD_LENGTH".to_string()
+    } else {
+        format!("RECORD_LENGTH_{}", upper_snake(record_name))
+    }
+}
+
+fn upper_snake(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    let mut prev_lower = false;
+    for ch in s.chars() {
+        if ch == '-' {
+            out.push('_');
+            prev_lower = false;
+        } else if ch.is_ascii_uppercase() {
+            if prev_lower {
+                out.push('_');
+            }
+            out.push(ch);
+            prev_lower = false;
+        } else {
+            out.extend(ch.to_uppercase());
+            prev_lower = ch.is_ascii_lowercase() || ch.is_ascii_digit();
+        }
+    }
     out
 }
 
 // ── context ────────────────────────────────────────────────────────────
 
 struct Context<'a> {
-    file: &'a BoeFile,
+    record: &'a Record,
     struct_name: String,
+    record_length_const: String,
     /// Map from field name → type (for expression generation).
     field_types: HashMap<&'a str, FieldType>,
 }
 
 impl<'a> Context<'a> {
-    fn new(file: &'a BoeFile) -> Self {
-        let struct_name = format!("Mod{}", file.model.number);
-        let field_types = file
+    fn new(model: &Model, record: &'a Record, single: bool) -> Self {
+        let struct_name = struct_name(&model.number, &record.name);
+        let record_length_const = record_length_const_name(&record.name, single);
+        let field_types = record
             .fields
             .iter()
             .map(|f| (f.name.as_str(), f.ty))
             .collect();
         Self {
-            file,
+            record,
             struct_name,
+            record_length_const,
             field_types,
         }
     }
@@ -50,8 +107,25 @@ impl<'a> Context<'a> {
     /// Fields that appear as members of the generated struct.
     /// Fixed fields are written as constants at marshal time and are skipped.
     fn struct_fields(&self) -> impl Iterator<Item = &Field> {
-        self.file.fields.iter().filter(|f| f.fixed.is_none())
+        self.record.fields.iter().filter(|f| f.fixed.is_none())
     }
+}
+
+fn emit_record(out: &mut String, model: &Model, record: &Record, single: bool) {
+    let ctx = Context::new(model, record, single);
+    emit_record_length_const(out, record, &ctx);
+    emit_struct(out, &ctx);
+    emit_impl(out, record, &ctx);
+}
+
+fn emit_record_length_const(out: &mut String, record: &Record, ctx: &Context) {
+    writeln!(
+        out,
+        "pub const {}: usize = {};",
+        ctx.record_length_const, record.record_length
+    )
+    .unwrap();
+    writeln!(out).unwrap();
 }
 
 // ── emitters ───────────────────────────────────────────────────────────
@@ -82,13 +156,6 @@ fn emit_constants(out: &mut String, file: &BoeFile) {
         file.model.version
     )
     .unwrap();
-    writeln!(
-        out,
-        "pub const RECORD_LENGTH: usize = {};",
-        file.model.record_length
-    )
-    .unwrap();
-    writeln!(out).unwrap();
 }
 
 fn rust_type_for(ty: FieldType) -> &'static str {
@@ -111,18 +178,18 @@ fn emit_struct(out: &mut String, ctx: &Context) {
     writeln!(out).unwrap();
 }
 
-fn emit_impl(out: &mut String, file: &BoeFile, ctx: &Context) {
+fn emit_impl(out: &mut String, record: &Record, ctx: &Context) {
     writeln!(out, "impl {} {{", ctx.struct_name).unwrap();
-    emit_marshal(out, file);
-    emit_unmarshal(out, file);
-    emit_compute_derived(out, file, ctx);
-    emit_validate(out, file, ctx);
+    emit_marshal(out, record, ctx);
+    emit_unmarshal(out, record, ctx);
+    emit_compute_derived(out, record, ctx);
+    emit_validate(out, record, ctx);
     writeln!(out, "}}").unwrap();
 }
 
 // ── marshal ────────────────────────────────────────────────────────────
 
-fn emit_marshal(out: &mut String, file: &BoeFile) {
+fn emit_marshal(out: &mut String, record: &Record, ctx: &Context) {
     writeln!(
         out,
         "    pub fn marshal(&self) -> Result<Vec<u8>, AeatError> {{"
@@ -130,12 +197,13 @@ fn emit_marshal(out: &mut String, file: &BoeFile) {
     .unwrap();
     writeln!(
         out,
-        "        let mut buf: Vec<u8> = vec![b' '; RECORD_LENGTH];"
+        "        let mut buf: Vec<u8> = vec![b' '; {}];",
+        ctx.record_length_const
     )
     .unwrap();
 
     // Fields in declaration order
-    for f in &file.fields {
+    for f in &record.fields {
         match f.fixed.as_deref() {
             Some(fixed) => {
                 writeln!(
@@ -211,7 +279,7 @@ fn emit_marshal_field(out: &mut String, f: &Field) {
 
 // ── unmarshal ──────────────────────────────────────────────────────────
 
-fn emit_unmarshal(out: &mut String, file: &BoeFile) {
+fn emit_unmarshal(out: &mut String, record: &Record, ctx: &Context) {
     writeln!(
         out,
         "    pub fn unmarshal(data: &[u8]) -> Result<Self, AeatError> {{"
@@ -219,12 +287,13 @@ fn emit_unmarshal(out: &mut String, file: &BoeFile) {
     .unwrap();
     writeln!(
         out,
-        "        if data.len() < RECORD_LENGTH {{ return Err(AeatError::ShortRecord {{ expected: RECORD_LENGTH, got: data.len() }}); }}"
+        "        if data.len() < {rl} {{ return Err(AeatError::ShortRecord {{ expected: {rl}, got: data.len() }}); }}",
+        rl = ctx.record_length_const
     )
     .unwrap();
     writeln!(out, "        let mut out = Self::default();").unwrap();
 
-    for f in &file.fields {
+    for f in &record.fields {
         if f.fixed.is_some() {
             continue; // not a struct field
         }
@@ -264,11 +333,11 @@ fn emit_unmarshal(out: &mut String, file: &BoeFile) {
 
 // ── compute_derived ────────────────────────────────────────────────────
 
-fn emit_compute_derived(out: &mut String, file: &BoeFile, ctx: &Context) {
+fn emit_compute_derived(out: &mut String, record: &Record, ctx: &Context) {
     writeln!(out, "    pub fn compute_derived(&mut self) {{").unwrap();
-    for d in &file.derives {
+    for d in &record.derives {
         // Fixed fields are never derived — skip if target is fixed.
-        let target = file.fields.iter().find(|f| f.name == d.target);
+        let target = record.fields.iter().find(|f| f.name == d.target);
         if target.map(|f| f.fixed.is_some()).unwrap_or(false) {
             continue;
         }
@@ -281,10 +350,10 @@ fn emit_compute_derived(out: &mut String, file: &BoeFile, ctx: &Context) {
 
 // ── validate ───────────────────────────────────────────────────────────
 
-fn emit_validate(out: &mut String, file: &BoeFile, ctx: &Context) {
+fn emit_validate(out: &mut String, record: &Record, ctx: &Context) {
     writeln!(out, "    pub fn validate(&self) -> Vec<AeatDiagnostic> {{").unwrap();
     writeln!(out, "        let mut diags = Vec::new();").unwrap();
-    for c in &file.checks {
+    for c in &record.checks {
         let rule = emit_bool(&c.rule, ctx);
         let severity = match c.severity {
             Severity::Error => "Severity::Error",

@@ -52,11 +52,16 @@ pub fn parse(src: &str) -> Result<BoeFile, ParseError> {
     }
 
     let model = model.ok_or_else(|| err("missing `model` block"))?;
-    Ok(BoeFile {
-        model,
+    let synthesized = Record {
+        name: format!("mod{}", model.number),
+        record_length: model.record_length,
         fields,
         derives,
         checks,
+    };
+    Ok(BoeFile {
+        model,
+        records: vec![synthesized],
     })
 }
 
