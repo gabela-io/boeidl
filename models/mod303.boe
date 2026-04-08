@@ -1667,3 +1667,350 @@ record "page3" {
         fixed = "</T30303000>"
     }
 }
+
+# ═══════════════════════════════════════════
+# Página 4 — Exonerados de la Declaración-resumen anual
+# ═══════════════════════════════════════════
+
+record "page4" {
+    record_length = 986
+
+    # ------- Cabecera de página -------
+
+    # Inicio del identificador de modelo y página. Constante "<T".
+    field tag_start {
+        at = 1
+        length = 2
+        type = alphanumeric
+        fixed = "<T"
+    }
+
+    # Modelo. Constante "303".
+    field modelo {
+        at = 3
+        length = 3
+        type = number
+        fixed = "303"
+    }
+
+    # Página. Constante "04000".
+    field pagina {
+        at = 6
+        length = 5
+        type = number
+        fixed = "04000"
+    }
+
+    # Fin de identificador de modelo. Constante ">".
+    field tag_end {
+        at = 11
+        length = 1
+        type = alphanumeric
+        fixed = ">"
+    }
+
+    # Indicador de página complementaria. En blanco.
+    field indicador_complementaria {
+        at = 12
+        length = 1
+        type = alpha
+    }
+
+    # ------- Exonerados — actividades (clave / epígrafe IAE) -------
+
+    # Actividad principal — Clave (B).
+    field actividad_principal_clave {
+        at = 13
+        length = 1
+        type = number
+    }
+
+    # Actividad principal — Epígrafe IAE (C).
+    field actividad_principal_epigrafe {
+        at = 14
+        length = 4
+        type = alphanumeric
+    }
+
+    # Otras actividades 1ª — Clave (B).
+    field actividad_otras_1_clave {
+        at = 18
+        length = 1
+        type = number
+    }
+
+    # Otras actividades 1ª — Epígrafe IAE (C).
+    field actividad_otras_1_epigrafe {
+        at = 19
+        length = 4
+        type = alphanumeric
+    }
+
+    # Otras actividades 2ª — Clave (B).
+    field actividad_otras_2_clave {
+        at = 23
+        length = 1
+        type = number
+    }
+
+    # Otras actividades 2ª — Epígrafe IAE (C).
+    field actividad_otras_2_epigrafe {
+        at = 24
+        length = 4
+        type = alphanumeric
+    }
+
+    # Otras actividades 3ª — Clave (B).
+    field actividad_otras_3_clave {
+        at = 28
+        length = 1
+        type = number
+    }
+
+    # Otras actividades 3ª — Epígrafe IAE (C).
+    field actividad_otras_3_epigrafe {
+        at = 29
+        length = 4
+        type = alphanumeric
+    }
+
+    # Otras actividades 4ª — Clave (B).
+    field actividad_otras_4_clave {
+        at = 33
+        length = 1
+        type = number
+    }
+
+    # Otras actividades 4ª — Epígrafe IAE (C).
+    field actividad_otras_4_epigrafe {
+        at = 34
+        length = 4
+        type = alphanumeric
+    }
+
+    # Otras actividades 5ª — Clave (B).
+    field actividad_otras_5_clave {
+        at = 38
+        length = 1
+        type = number
+    }
+
+    # Otras actividades 5ª — Epígrafe IAE (C).
+    field actividad_otras_5_epigrafe {
+        at = 39
+        length = 4
+        type = alphanumeric
+    }
+
+    # (D) Marca: operaciones con obligación de presentar declaración anual de operaciones con terceras personas. "X" o blanco.
+    field marca_operaciones_terceras {
+        at = 43
+        length = 1
+        type = alphanumeric
+    }
+
+    # ------- Tributación por razón de territorio -------
+
+    # Casilla [89]: Álava.
+    field c89_alava {
+        at = 44
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [90]: Guipúzcoa.
+    field c90_guipuzcoa {
+        at = 49
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [91]: Vizcaya.
+    field c91_vizcaya {
+        at = 54
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [92]: Navarra.
+    field c92_navarra {
+        at = 59
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [107]: Territorio común.
+    field c107_territorio_comun {
+        at = 64
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # ------- Operaciones realizadas en el ejercicio (exonerados) -------
+
+    # Casilla [80]: Operaciones en régimen general (con signo).
+    field c80_regimen_general {
+        at = 69
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [81]: Operaciones en régimen especial del criterio de caja conforme art. 75 LIVA (con signo).
+    field c81_criterio_caja {
+        at = 86
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [93]: Entregas intracomunitarias de bienes y servicios (con signo).
+    field c93_entregas_intracom {
+        at = 103
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [94]: Exportaciones y otras operaciones exentas con derecho a deducción (con signo).
+    field c94_exportaciones {
+        at = 120
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [83]: Operaciones exentas sin derecho a deducción (con signo).
+    field c83_exentas_sin_derecho {
+        at = 137
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [84]: Operaciones no sujetas por reglas de localización (excepto las incluidas en [126]) (con signo).
+    field c84_no_sujetas_localizacion {
+        at = 154
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [125]: Operaciones sujetas con inversión del sujeto pasivo (con signo).
+    field c125_sujetas_isp {
+        at = 171
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [126]: OSS — Operaciones no sujetas por reglas de localización acogidas a la OSS (con signo).
+    field c126_oss_no_sujetas {
+        at = 188
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [127]: OSS — Operaciones sujetas y acogidas a la OSS (con signo).
+    field c127_oss_sujetas {
+        at = 205
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [128]: Operaciones intragrupo valoradas conforme a arts. 78 y 79 LIVA (con signo).
+    field c128_intragrupo {
+        at = 222
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [86]: Operaciones en régimen simplificado (con signo).
+    field c86_regimen_simplificado {
+        at = 239
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [95]: Operaciones en régimen especial de la agricultura, ganadería y pesca (con signo).
+    field c95_reagp {
+        at = 256
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [96]: Operaciones realizadas por sujetos pasivos acogidos al régimen especial del recargo de equivalencia (con signo).
+    field c96_recargo_equivalencia {
+        at = 273
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [97]: Operaciones en régimen especial de bienes usados, objetos de arte, antigüedades y objetos de colección (con signo).
+    field c97_bienes_usados {
+        at = 290
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [98]: Operaciones en régimen especial de Agencias de Viajes (con signo).
+    field c98_agencias_viajes {
+        at = 307
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [79]: Entregas de bienes inmuebles no habituales, operaciones financieras y oro de inversión no habituales (con signo).
+    field c79_no_habituales {
+        at = 324
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [99]: Entregas de bienes de inversión (con signo).
+    field c99_bienes_inversion {
+        at = 341
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # Casilla [88]: Total volumen de operaciones (con signo).
+    field c88_total_volumen {
+        at = 358
+        length = 17
+        type = signed_amount
+        decimals = 2
+    }
+
+    # ------- Reservados -------
+
+    # Reservado para la AEAT.
+    field _reservado_aeat {
+        at = 375
+        length = 600
+        type = alphanumeric
+    }
+
+    # Indicador de fin de registro. Constante "</T30304000>".
+    field tag_fin_registro {
+        at = 975
+        length = 12
+        type = alphanumeric
+        fixed = "</T30304000>"
+    }
+}
