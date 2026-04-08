@@ -12,12 +12,19 @@ pub enum LineEnding {
     Lf,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct BoeFile {
-    pub model: Model,
+#[derive(Debug, Clone, PartialEq)]
+pub struct Record {
+    pub name: String,
+    pub record_length: usize,
     pub fields: Vec<Field>,
     pub derives: Vec<Derive>,
     pub checks: Vec<Check>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BoeFile {
+    pub model: Model,
+    pub records: Vec<Record>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -26,6 +33,7 @@ pub struct Model {
     pub version: String,
     pub encoding: Encoding,
     pub line_ending: LineEnding,
+    /// On single-record files this is authoritative. When the file contains explicit record blocks, each record's own record_length wins and this field holds the primary record's length (first declared).
     pub record_length: usize,
 }
 
