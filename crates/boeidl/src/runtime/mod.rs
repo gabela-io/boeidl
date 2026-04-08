@@ -3,10 +3,12 @@
 //! Generated modules depend on these types and helpers to marshal/unmarshal
 //! AEAT fixed-position records.
 
+pub mod bytes;
 pub mod encode;
 pub mod errors;
 pub mod sanitize;
 
-pub use encode::{encode_signed_amount, encode_number, pad_left, pad_right};
+pub use bytes::{parse_signed_amount, read_field, write_field};
+pub use encode::{encode_number, encode_signed_amount, pad_left, pad_right};
 pub use errors::{AeatDiagnostic, AeatError, Severity};
 pub use sanitize::{sanitize_alpha, sanitize_alphanumeric};
