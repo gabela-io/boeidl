@@ -72,6 +72,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "boeidl-example"
+version = "0.1.0"
+dependencies = [
+ "boeidl",
+]
+
+[[package]]
 name = "cfg-if"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"

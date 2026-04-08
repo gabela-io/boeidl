@@ -1,3 +1,3 @@
 [workspace]
-members = ["crates/boeidl"]
+members = ["crates/boeidl", "example"]
 resolver = "2"

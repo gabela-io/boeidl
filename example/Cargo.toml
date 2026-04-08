@@ -1,0 +1,11 @@
+[package]
+name = "boeidl-example"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+boeidl = { path = "../crates/boeidl" }
+
+[build-dependencies]
+boeidl = { path = "../crates/boeidl" }

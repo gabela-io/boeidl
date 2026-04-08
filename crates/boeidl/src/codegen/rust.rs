@@ -61,8 +61,6 @@ fn emit_header(out: &mut String, file: &BoeFile) {
     )
     .unwrap();
     writeln!(out).unwrap();
-    writeln!(out, "#![allow(unused, clippy::all)]").unwrap();
-    writeln!(out).unwrap();
     writeln!(out, "use boeidl::runtime::*;").unwrap();
     writeln!(out).unwrap();
 }
