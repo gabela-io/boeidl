@@ -141,6 +141,10 @@ fn field_type_name(f: &Field) -> String {
             Some(d) => format!("amount({d})"),
             None => "amount".to_string(),
         },
+        FieldType::UnsignedAmount => match f.decimals {
+            Some(d) => format!("uamount({d})"),
+            None => "uamount".to_string(),
+        },
     }
 }
 

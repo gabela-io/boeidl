@@ -255,6 +255,7 @@ fn parse_field(pair: Pair<Rule>) -> Result<Field, ParseError> {
                     "alphanumeric" => FieldType::Alphanumeric,
                     "number" => FieldType::Number,
                     "signed_amount" => FieldType::SignedAmount,
+                    "unsigned_amount" => FieldType::UnsignedAmount,
                     other => return Err(err(format!("unknown field type: {other}"))),
                 });
             }

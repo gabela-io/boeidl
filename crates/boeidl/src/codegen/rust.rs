@@ -161,7 +161,7 @@ fn emit_constants(out: &mut String, file: &BoeFile) {
 fn rust_type_for(ty: FieldType) -> &'static str {
     match ty {
         FieldType::Alpha | FieldType::Alphanumeric | FieldType::Number => "String",
-        FieldType::SignedAmount => "i64",
+        FieldType::SignedAmount | FieldType::UnsignedAmount => "i64",
     }
 }
 
@@ -274,6 +274,16 @@ fn emit_marshal_field(out: &mut String, f: &Field) {
             )
             .unwrap();
         }
+        FieldType::UnsignedAmount => {
+            let decimals = f.decimals.unwrap_or(0);
+            writeln!(
+                out,
+                "        {{ let s = encode_unsigned_amount(\"{name}\", self.{name}, {}, {})?; \
+                 write_field(&mut buf, {}, {}, &s, \"{name}\")?; }}",
+                f.length, decimals, f.at, f.length,
+            )
+            .unwrap();
+        }
     }
 }
 
@@ -319,6 +329,14 @@ fn emit_unmarshal(out: &mut String, record: &Record, ctx: &Context) {
                 writeln!(
                     out,
                     "        out.{name} = parse_signed_amount(data, {}, {})?;",
+                    f.at, f.length
+                )
+                .unwrap();
+            }
+            FieldType::UnsignedAmount => {
+                writeln!(
+                    out,
+                    "        out.{name} = parse_unsigned_amount(data, {}, {})?;",
                     f.at, f.length
                 )
                 .unwrap();
@@ -378,7 +396,9 @@ fn emit_expr(e: &Expr, ctx: &Context) -> String {
         Expr::Int(n) => format!("{n}i64"),
         Expr::Str(s) => format!("\"{}\"", escape_str(s)),
         Expr::Ident(name) => match ctx.field_types.get(name.as_str()) {
-            Some(FieldType::SignedAmount) => format!("self.{name}"),
+            Some(FieldType::SignedAmount) | Some(FieldType::UnsignedAmount) => {
+                format!("self.{name}")
+            }
             Some(_) => format!("self.{name}.as_str()"),
             None => format!("self.{name}"), // will be a compile error if unknown — validator catches this first
         },

@@ -43,6 +43,7 @@ pub enum FieldType {
     Alphanumeric,
     Number,
     SignedAmount,
+    UnsignedAmount,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

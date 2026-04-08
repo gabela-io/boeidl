@@ -110,10 +110,12 @@ pub fn validate(file: &BoeFile) -> Vec<Diagnostic> {
                 }
             }
 
-            // decimals only on signed_amount
-            if f.decimals.is_some() && f.ty != FieldType::SignedAmount {
+            // decimals only on signed_amount or unsigned_amount
+            if f.decimals.is_some()
+                && !matches!(f.ty, FieldType::SignedAmount | FieldType::UnsignedAmount)
+            {
                 diags.push(Diagnostic::error(format!(
-                    "{prefix}field `{}`: `decimals` only allowed on signed_amount",
+                    "{prefix}field `{}`: `decimals` only allowed on signed_amount or unsigned_amount",
                     f.name
                 )));
             }

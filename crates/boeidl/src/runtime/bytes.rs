@@ -69,6 +69,29 @@ pub fn parse_signed_amount(buf: &[u8], at: usize, width: usize) -> Result<i64, A
     Ok(sign * n)
 }
 
+/// Parse an unsigned amount field from the buffer. All chars are digits
+/// (possibly with leading zeros/spaces).
+pub fn parse_unsigned_amount(data: &[u8], at: usize, len: usize) -> Result<i64, AeatError> {
+    let start = at - 1;
+    let end = start + len;
+    if end > data.len() {
+        return Err(AeatError::ShortRecord {
+            expected: end,
+            got: data.len(),
+        });
+    }
+    let slice = &data[start..end];
+    let s = std::str::from_utf8(slice).map_err(|_| AeatError::InvalidEncoding)?;
+    let trimmed = s.trim_start_matches(|c: char| c == '0' || c == ' ');
+    if trimmed.is_empty() {
+        return Ok(0);
+    }
+    trimmed.parse::<i64>().map_err(|_| AeatError::InvalidValue {
+        field: format!("parse_unsigned_amount@{at}"),
+        value: s.to_string(),
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -109,5 +132,13 @@ mod tests {
         let mut buf = vec![b' '; 20];
         write_field(&mut buf, 1, 13, "N000000012345", "x").unwrap();
         assert_eq!(parse_signed_amount(&buf, 1, 13).unwrap(), -12345);
+    }
+
+    #[test]
+    fn parse_unsigned_basic() {
+        assert_eq!(
+            parse_unsigned_amount(b"00000000001000000", 1, 17).unwrap(),
+            1_000_000
+        );
     }
 }

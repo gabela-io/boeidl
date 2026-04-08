@@ -85,6 +85,33 @@ pub fn encode_signed_amount(
     Ok(out)
 }
 
+/// Encode an unsigned fixed-point amount as `width` ASCII digits, zero-padded.
+/// `value` is the integer representation including decimal places. Errors on
+/// negative values or overflow. `_decimals` is accepted for symmetry with
+/// `encode_signed_amount`.
+pub fn encode_unsigned_amount(
+    field: &str,
+    value: i64,
+    width: usize,
+    _decimals: usize,
+) -> Result<String, AeatError> {
+    if value < 0 {
+        return Err(AeatError::InvalidValue {
+            field: field.to_string(),
+            value: value.to_string(),
+        });
+    }
+    let s = value.to_string();
+    if s.len() > width {
+        return Err(AeatError::FieldOverflow {
+            field: field.to_string(),
+            width,
+            got: s.len(),
+        });
+    }
+    Ok(pad_left(&s, width, '0'))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -136,6 +163,29 @@ mod tests {
     fn encode_signed_zero() {
         let s = encode_signed_amount("x", 0, 13, 2).unwrap();
         assert_eq!(s, " 000000000000");
+    }
+
+    #[test]
+    fn encode_unsigned_amount_positive() {
+        assert_eq!(
+            encode_unsigned_amount("x", 1_000_000, 17, 2).unwrap(),
+            "00000000001000000"
+        );
+    }
+
+    #[test]
+    fn encode_unsigned_amount_zero() {
+        assert_eq!(encode_unsigned_amount("x", 0, 10, 2).unwrap(), "0000000000");
+    }
+
+    #[test]
+    fn encode_unsigned_amount_rejects_negative() {
+        assert!(encode_unsigned_amount("x", -1, 10, 2).is_err());
+    }
+
+    #[test]
+    fn encode_unsigned_amount_overflow() {
+        assert!(encode_unsigned_amount("x", 10_i64.pow(11), 10, 2).is_err());
     }
 
     #[test]
