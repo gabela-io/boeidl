@@ -1,0 +1,19 @@
+// boeidl — PEG grammar for the .boe DSL
+//
+// Scope (batch 1): only `model` block. Field/derive/check will be added
+// in subsequent batches per the spec's implementation order.
+
+WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
+COMMENT    = _{ "#" ~ (!NEWLINE ~ ANY)* }
+
+ident  = @{ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
+string = ${ "\"" ~ inner ~ "\"" }
+inner  = @{ (!"\"" ~ ANY)* }
+int    = @{ ASCII_DIGIT+ }
+
+// ── model block ─────────────────────────────────────────────────────────
+model_block = { "model" ~ string ~ "version" ~ string ~ "{" ~ model_attr* ~ "}" }
+model_attr  = { ident ~ "=" ~ (string | int) }
+
+// ── top-level file ──────────────────────────────────────────────────────
+file = { SOI ~ model_block ~ EOI }

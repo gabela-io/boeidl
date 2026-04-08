@@ -1,0 +1,22 @@
+[package]
+name = "boeidl"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+description = "Compilador DSL para formatos de fichero posicional de la AEAT"
+license = "MIT"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "boeidl"
+path = "src/main.rs"
+
+[dependencies]
+pest = "2"
+pest_derive = "2"
+clap = { version = "4", features = ["derive"] }
+
+[dev-dependencies]
+pretty_assertions = "1"
