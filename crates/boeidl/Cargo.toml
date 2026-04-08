@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 rust-version = "1.75"
 description = "Compilador DSL para formatos de fichero posicional de la AEAT"
-license = "MIT"
+license = "AGPL-3.0-or-later"
 
 [lib]
 path = "src/lib.rs"
