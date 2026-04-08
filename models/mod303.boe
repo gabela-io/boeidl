@@ -1,0 +1,596 @@
+# Auto-generated from DR303e21v200.xlsx — Modelo 303 (IVA) v2.06
+# Source: https://sede.agenciatributaria.gob.es/static_files/Sede/Disenyo_registro/DR_300_399/archivos_21/DR303e21v200.xlsx
+# Scope: declares the 5 page layouts (DP30301..DP30305) as independent records.
+#        Envelope (DP30300) and page composition/repetition are handled separately.
+# Note:  The XLSX `Comp` column (complementaria-only fields) on pages 2/5 is currently ignored.
+
+model "303" version "2021-v2.06" {
+    encoding = "ISO-8859-1"
+    line_ending = "CRLF"
+    record_length = 1464
+}
+
+# ═══════════════════════════════════════════
+# Página 1 — Identificación, devengo, datos generales
+#            y liquidación régimen general (casillas 01–46)
+# ═══════════════════════════════════════════
+
+record "page1" {
+    record_length = 1464
+
+    # ------- Cabecera de página -------
+
+    # Inicio del identificador de modelo y página. Constante "<T".
+    field tag_start {
+        at = 1
+        length = 2
+        type = alphanumeric
+        fixed = "<T"
+    }
+
+    # Modelo. Constante "303".
+    field modelo {
+        at = 3
+        length = 3
+        type = number
+        fixed = "303"
+    }
+
+    # Página. Constante "01000".
+    field pagina {
+        at = 6
+        length = 5
+        type = number
+        fixed = "01000"
+    }
+
+    # Fin de identificador de modelo. Constante ">".
+    field tag_end {
+        at = 11
+        length = 1
+        type = alphanumeric
+        fixed = ">"
+    }
+
+    # Indicador de página complementaria. En blanco.
+    field indicador_complementaria {
+        at = 12
+        length = 1
+        type = alpha
+    }
+
+    # Tipo Declaración (Nota 1).
+    field tipo_declaracion {
+        at = 13
+        length = 1
+        type = alpha
+    }
+
+    # ------- Identificación (1) -------
+
+    # NIF del declarante.
+    field nif {
+        at = 14
+        length = 9
+        type = alphanumeric
+    }
+
+    # Apellidos y nombre o Razón social.
+    field apellidos_nombre_razon_social {
+        at = 23
+        length = 80
+        type = alphanumeric
+    }
+
+    # ------- Devengo (2) -------
+
+    # Ejercicio (AAAA).
+    field ejercicio {
+        at = 103
+        length = 4
+        type = number
+    }
+
+    # Período: "01".."12" o "1T".."4T".
+    field periodo {
+        at = 107
+        length = 2
+        type = alphanumeric
+    }
+
+    # ------- Identificación (1) — indicadores -------
+
+    # Tributación exclusivamente foral con IVA importación pendiente de ingreso.
+    field tributacion_foral {
+        at = 109
+        length = 1
+        type = number
+    }
+
+    # Sujeto pasivo inscrito en el Registro de devolución mensual (art. 30 RIVA).
+    field redeme {
+        at = 110
+        length = 1
+        type = number
+    }
+
+    # Sujeto pasivo que tributa exclusivamente en régimen simplificado.
+    field regimen_simplificado {
+        at = 111
+        length = 1
+        type = number
+    }
+
+    # Autoliquidación conjunta.
+    field autoliquidacion_conjunta {
+        at = 112
+        length = 1
+        type = number
+    }
+
+    # Sujeto pasivo acogido al régimen especial del criterio de caja (art. 163 undecies LIVA).
+    field criterio_caja {
+        at = 113
+        length = 1
+        type = number
+    }
+
+    # Sujeto pasivo destinatario de operaciones acogidas al régimen especial del criterio de caja.
+    field destinatario_criterio_caja {
+        at = 114
+        length = 1
+        type = number
+    }
+
+    # Opción por la aplicación de la prorrata especial (art. 103.Dos.1º LIVA).
+    field opcion_prorrata_especial {
+        at = 115
+        length = 1
+        type = number
+    }
+
+    # Revocación de la opción por la aplicación de la prorrata especial.
+    field revocacion_prorrata_especial {
+        at = 116
+        length = 1
+        type = number
+    }
+
+    # Sujeto pasivo declarado en concurso de acreedores en el presente período.
+    field concurso_acreedores {
+        at = 117
+        length = 1
+        type = number
+    }
+
+    # Fecha en que se dictó el auto de declaración de concurso (AAAAMMDD).
+    field fecha_auto_concurso {
+        at = 118
+        length = 8
+        type = alphanumeric
+    }
+
+    # Auto de declaración de concurso dictado en el período: "1" pre, "2" post, blanco NO.
+    field tipo_auto_concurso {
+        at = 126
+        length = 1
+        type = alphanumeric
+    }
+
+    # Sujeto pasivo acogido voluntariamente al SII.
+    field sii_voluntario {
+        at = 127
+        length = 1
+        type = number
+    }
+
+    # Sujeto pasivo exonerado de la declaración-resumen anual del IVA, modelo 390.
+    field exonerado_390 {
+        at = 128
+        length = 1
+        type = number
+    }
+
+    # Sujeto pasivo con volumen anual de operaciones distinto de cero (art. 121 LIVA).
+    field volumen_operaciones_no_cero {
+        at = 129
+        length = 1
+        type = number
+    }
+
+    # ------- Liquidación (3) — Régimen general — IVA devengado -------
+
+    # Casilla [01]: Régimen general — Base imponible (tipo 1).
+    field c01_rg_base_1 {
+        at = 130
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [02]: Régimen general — Tipo % (tipo 1).
+    field c02_rg_tipo_1 {
+        at = 147
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [03]: Régimen general — Cuota (tipo 1).
+    field c03_rg_cuota_1 {
+        at = 152
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [04]: Régimen general — Base imponible (tipo 2).
+    field c04_rg_base_2 {
+        at = 169
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [05]: Régimen general — Tipo % (tipo 2).
+    field c05_rg_tipo_2 {
+        at = 186
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [06]: Régimen general — Cuota (tipo 2).
+    field c06_rg_cuota_2 {
+        at = 191
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [07]: Régimen general — Base imponible (tipo 3).
+    field c07_rg_base_3 {
+        at = 208
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [08]: Régimen general — Tipo % (tipo 3).
+    field c08_rg_tipo_3 {
+        at = 225
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [09]: Régimen general — Cuota (tipo 3).
+    field c09_rg_cuota_3 {
+        at = 230
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [10]: Adquisiciones intracomunitarias de bienes y servicios — Base imponible.
+    field c10_aib_base {
+        at = 247
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [11]: Adquisiciones intracomunitarias de bienes y servicios — Cuota.
+    field c11_aib_cuota {
+        at = 264
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [12]: Otras operaciones con inversión del sujeto pasivo (excepto adq. intracom) — Base.
+    field c12_isp_base {
+        at = 281
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [13]: Otras operaciones con inversión del sujeto pasivo (excepto adq. intracom) — Cuota.
+    field c13_isp_cuota {
+        at = 298
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [14]: Modificación bases y cuotas — Base imponible (con signo).
+    field c14_mod_base {
+        at = 315
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [15]: Modificación bases y cuotas — Cuota (con signo).
+    field c15_mod_cuota {
+        at = 332
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [16]: Recargo equivalencia — Base imponible (tipo 1).
+    field c16_req_base_1 {
+        at = 349
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [17]: Recargo equivalencia — Tipo % (tipo 1).
+    field c17_req_tipo_1 {
+        at = 366
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [18]: Recargo equivalencia — Cuota (tipo 1).
+    field c18_req_cuota_1 {
+        at = 371
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [19]: Recargo equivalencia — Base imponible (tipo 2).
+    field c19_req_base_2 {
+        at = 388
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [20]: Recargo equivalencia — Tipo % (tipo 2).
+    field c20_req_tipo_2 {
+        at = 405
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [21]: Recargo equivalencia — Cuota (tipo 2).
+    field c21_req_cuota_2 {
+        at = 410
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [22]: Recargo equivalencia — Base imponible (tipo 3).
+    field c22_req_base_3 {
+        at = 427
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [23]: Recargo equivalencia — Tipo % (tipo 3).
+    field c23_req_tipo_3 {
+        at = 444
+        length = 5
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [24]: Recargo equivalencia — Cuota (tipo 3).
+    field c24_req_cuota_3 {
+        at = 449
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [25]: Modificaciones bases y cuotas del recargo de equivalencia — Base.
+    field c25_mod_req_base {
+        at = 466
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [26]: Modificaciones bases y cuotas del recargo de equivalencia — Cuota.
+    field c26_mod_req_cuota {
+        at = 483
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [27]: Total cuota devengada ([03]+[06]+[09]+[11]+[13]+[15]+[18]+[21]+[24]+[26]).
+    field c27_total_cuota_devengada {
+        at = 500
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # ------- Liquidación (3) — Régimen general — IVA deducible -------
+
+    # Casilla [28]: Cuotas soportadas en operaciones interiores corrientes — Base.
+    field c28_int_corr_base {
+        at = 517
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [29]: Cuotas soportadas en operaciones interiores corrientes — Cuota.
+    field c29_int_corr_cuota {
+        at = 534
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [30]: Cuotas soportadas en operaciones interiores con bienes de inversión — Base.
+    field c30_int_inv_base {
+        at = 551
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [31]: Cuotas soportadas en operaciones interiores con bienes de inversión — Cuota.
+    field c31_int_inv_cuota {
+        at = 568
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [32]: Importaciones de bienes corrientes — Base.
+    field c32_imp_corr_base {
+        at = 585
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [33]: Importaciones de bienes corrientes — Cuota.
+    field c33_imp_corr_cuota {
+        at = 602
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [34]: Importaciones de bienes de inversión — Base.
+    field c34_imp_inv_base {
+        at = 619
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [35]: Importaciones de bienes de inversión — Cuota.
+    field c35_imp_inv_cuota {
+        at = 636
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [36]: Adquisiciones intracomunitarias de bienes y servicios corrientes — Base.
+    field c36_aib_corr_base {
+        at = 653
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [37]: Adquisiciones intracomunitarias de bienes y servicios corrientes — Cuota.
+    field c37_aib_corr_cuota {
+        at = 670
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [38]: Adquisiciones intracomunitarias de bienes de inversión — Base.
+    field c38_aib_inv_base {
+        at = 687
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [39]: Adquisiciones intracomunitarias de bienes de inversión — Cuota.
+    field c39_aib_inv_cuota {
+        at = 704
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [40]: Rectificación de deducciones — Base (con signo).
+    field c40_rect_base {
+        at = 721
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [41]: Rectificación de deducciones — Cuota (con signo).
+    field c41_rect_cuota {
+        at = 738
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [42]: Compensaciones Régimen Especial A.G. y P. — Cuota (con signo).
+    field c42_compensaciones_reagp {
+        at = 755
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [43]: Regularización inversiones — Cuota (con signo).
+    field c43_regularizacion_inversiones {
+        at = 772
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [44]: Regularización por aplicación del porcentaje definitivo de prorrata — Cuota (con signo).
+    field c44_regularizacion_prorrata {
+        at = 789
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [45]: Total a deducir ([29]+[31]+[33]+[35]+[37]+[39]+[41]+[42]+[43]+[44]).
+    field c45_total_a_deducir {
+        at = 806
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # Casilla [46]: Resultado régimen general ([27]-[45]) (con signo).
+    field c46_resultado_rg {
+        at = 823
+        length = 17
+        type = unsigned_amount
+        decimals = 2
+    }
+
+    # ------- Reservados -------
+
+    # Reservado para la AEAT.
+    field _reservado_aeat {
+        at = 840
+        length = 600
+        type = alphanumeric
+    }
+
+    # Reservado para la AEAT — Sello electrónico.
+    field _reservado_sello_aeat {
+        at = 1440
+        length = 13
+        type = alphanumeric
+    }
+
+    # Indicador de fin de registro. Constante "</T30301000>".
+    field tag_fin_registro {
+        at = 1453
+        length = 12
+        type = alphanumeric
+        fixed = "</T30301000>"
+    }
+}
