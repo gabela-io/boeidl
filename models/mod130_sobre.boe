@@ -1,0 +1,91 @@
+# Modelo 130 "con sobre" — fichero de presentación real (DR130e15v12).
+# 946 bytes = header(17) + aux(311) + pagina(600) + trailer(18). SIN CRLF.
+# NO sustituye a mod130.boe (registro plano de 878). Import/presentación en Sede.
+# Layout validado byte-exact contra ficheros reales (ver test/modelo130.test.ts).
+
+model "130" version "2015-v12" {
+    encoding = "ISO-8859-1"
+    line_ending = "LF"       # sin efecto: el fichero no lleva separador de línea
+    record_length = 600      # record primario (pagina)
+}
+
+# ── AUX (311 bytes): datos de la Entidad Desarrolladora (en blanco en import) ──
+record "aux" {
+    record_length = 311
+    field abre_aux        { at = 1   length = 5   type = alphanumeric fixed = "<AUX>" }
+    field version_programa { at = 76  length = 4   type = alphanumeric description = "Versión del programa (ED). Blanco en prefill." }
+    field nif_ed          { at = 84  length = 9   type = alphanumeric description = "NIF entidad desarrolladora. Blanco si no aplica." }
+    field cierra_aux      { at = 306 length = 6   type = alphanumeric fixed = "</AUX>" }
+    # Huecos 6-75, 80-83, 93-305 se rellenan con blancos (warnings de gap esperados).
+}
+
+# ── PÁGINA (600 bytes): registro DR 13001 con importes de 17 ──────────────────
+record "pagina" {
+    record_length = 600
+    field abre_pagina { at = 1  length = 11 type = alphanumeric fixed = "<T13001000>" }
+    field indicador_complementaria { at = 12 length = 1 type = alphanumeric description = "Indicador página complementaria. Blanco." }
+    field tipo_declaracion { at = 13 length = 1 type = alpha required = true domain = "B|G|I|N|U"
+        description = "B=a deducir, G=CCC-ingreso, I=ingreso, N=negativa, U=domiciliación." }
+    field nif       { at = 14  length = 9  type = alphanumeric required = true description = "NIF del declarante." }
+    field apellidos { at = 23  length = 60 type = alphanumeric description = "Apellidos del declarante." }
+    field nombre    { at = 83  length = 20 type = alphanumeric description = "Nombre del declarante." }
+    field ejercicio { at = 103 length = 4  type = number required = true description = "Ejercicio (AAAA). Debe coincidir con el del sobre." }
+    field periodo   { at = 107 length = 2  type = alphanumeric required = true domain = "1T|2T|3T|4T"
+        description = "Periodo. Debe coincidir con el del sobre." }
+
+    field c01_ingresos          { at = 109 length = 17 type = unsigned_amount decimals = 2 description = "[01] Ingresos computables." }
+    field c02_gastos            { at = 126 length = 17 type = unsigned_amount decimals = 2 description = "[02] Gastos deducibles." }
+    field c03_rendimiento_neto  { at = 143 length = 17 type = signed_n        decimals = 2 description = "[03] Rendimiento neto [01]-[02]." }
+    field c04_20pct             { at = 160 length = 17 type = unsigned_amount decimals = 2 description = "[04] 20% de [03]." }
+    field c05_deducir_anteriores { at = 177 length = 17 type = unsigned_amount decimals = 2 description = "[05] A deducir trimestres anteriores." }
+    field c06_retenciones       { at = 194 length = 17 type = unsigned_amount decimals = 2 description = "[06] A deducir retenciones." }
+    field c07_pago_fraccionado  { at = 211 length = 17 type = signed_n        decimals = 2 description = "[07] Pago fraccionado [04]-[05]-[06]." }
+    field c08_ingresos_agricola { at = 228 length = 17 type = unsigned_amount decimals = 2 description = "[08] Ingresos actividades agrícolas." }
+    field c09_2pct              { at = 245 length = 17 type = unsigned_amount decimals = 2 description = "[09] 2% de [08]." }
+    field c10_retenciones_agricola { at = 262 length = 17 type = unsigned_amount decimals = 2 description = "[10] A deducir retenciones (agrícola)." }
+    field c11_pago_agricola     { at = 279 length = 17 type = signed_n        decimals = 2 description = "[11] Pago fraccionado (agrícola)." }
+    field c12_suma_pagos        { at = 296 length = 17 type = unsigned_amount decimals = 2 description = "[12] Suma pagos [07]+[11]." }
+    field c13_minoracion_80bis  { at = 313 length = 17 type = unsigned_amount decimals = 2 description = "[13] Minoración art. 80 bis." }
+    field c14_diferencia        { at = 330 length = 17 type = signed_n        decimals = 2 description = "[14] Diferencia [12]-[13]." }
+    field c15_negativos_anteriores { at = 347 length = 17 type = unsigned_amount decimals = 2 description = "[15] A deducir negativos anteriores." }
+    field c16_vivienda          { at = 364 length = 17 type = unsigned_amount decimals = 2 description = "[16] Préstamo vivienda habitual." }
+    field c17_total             { at = 381 length = 17 type = signed_n        decimals = 2 description = "[17] Total [14]-[15]-[16]." }
+    field c18_anteriores_declaraciones { at = 398 length = 17 type = unsigned_amount decimals = 2 description = "[18] A deducir declaraciones anteriores." }
+    field c19_resultado         { at = 415 length = 17 type = signed_n        decimals = 2 description = "[19] Resultado de la declaración." }
+
+    field marca_complementaria { at = 432 length = 1  type = alphanumeric domain = " |X" description = "Marca complementaria." }
+    field justificante_anterior { at = 433 length = 13 type = alphanumeric description = "Justificante declaración anterior." }
+    field iban    { at = 446 length = 34 type = alphanumeric description = "IBAN para domiciliación." }
+    field reservado { at = 480 length = 96 type = alphanumeric description = "Reservado AEAT (blancos)." }
+    field sello   { at = 576 length = 13 type = alphanumeric description = "Sello electrónico (blancos)." }
+    field cierra_pagina { at = 589 length = 12 type = alphanumeric fixed = "</T13001000>" }
+
+    # Derivaciones. [04] redondea (AEAT) en vez de truncar: (x*20+50)/100.
+    derive c03_rendimiento_neto = c01_ingresos - c02_gastos
+    derive c04_20pct = (max(c03_rendimiento_neto, 0) * 20 + 50) / 100
+    derive c07_pago_fraccionado = c04_20pct - c05_deducir_anteriores - c06_retenciones
+    derive c09_2pct = c08_ingresos_agricola * 2 / 100
+    derive c11_pago_agricola = c09_2pct - c10_retenciones_agricola
+    derive c12_suma_pagos = c07_pago_fraccionado + c11_pago_agricola
+    derive c14_diferencia = c12_suma_pagos - c13_minoracion_80bis
+    derive c17_total = c14_diferencia - c15_negativos_anteriores - c16_vivienda
+    derive c19_resultado = c17_total - c18_anteriores_declaraciones
+
+    check E301 { rule = c03_rendimiento_neto == c01_ingresos - c02_gastos
+        severity = error message = "[03] debe ser [01]-[02]." }
+    check E307 { rule = c07_pago_fraccionado == c04_20pct - c05_deducir_anteriores - c06_retenciones
+        severity = error message = "[07] debe ser [04]-[05]-[06]." }
+    check E319 { rule = c19_resultado == c17_total - c18_anteriores_declaraciones
+        severity = error message = "[19] debe ser [17]-[18]." }
+    check W001 { rule = tipo_declaracion == "N" implies c19_resultado <= 0
+        severity = warning message = "Declaración negativa: [19] debería ser <= 0." }
+}
+
+# ── SOBRE ─────────────────────────────────────────────────────────────────────
+envelope {
+    param ejercicio { length = 4 type = number       required = true description = "Ejercicio (AAAA)." }
+    param periodo   { length = 2 type = alphanumeric  required = true description = "Periodo (1T..4T)." }
+    header  = "<T1300${ejercicio}${periodo}0000>"
+    trailer = "</T1300${ejercicio}${periodo}0000>"
+    contains = [aux, pagina]
+}
