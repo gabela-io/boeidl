@@ -1,6 +1,10 @@
 //! End-to-end test: compile mod130.boe → compile the generated Rust →
 //! populate a struct → marshal → unmarshal → assert round-trip.
 
+// Field-by-field assignment reads clearer than a struct literal for these
+// many-field fixtures; the default()-then-assign pattern is deliberate.
+#![allow(clippy::field_reassign_with_default)]
+
 use boeidl_example::generated::{Mod130, MODEL_NUMBER, MODEL_VERSION, RECORD_LENGTH};
 
 fn make_valid() -> Mod130 {

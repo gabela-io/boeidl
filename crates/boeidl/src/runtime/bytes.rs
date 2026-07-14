@@ -15,8 +15,7 @@ pub fn write_field(
     field: &str,
 ) -> Result<(), AeatError> {
     let start = at - 1;
-    let mut n = 0;
-    for c in s.chars() {
+    for (n, c) in s.chars().enumerate() {
         if n >= width {
             return Err(AeatError::FieldOverflow {
                 field: field.to_string(),
@@ -32,7 +31,6 @@ pub fn write_field(
             });
         }
         buf[start + n] = cp as u8;
-        n += 1;
     }
     // Any remaining positions are left as the caller initialized them.
     Ok(())
@@ -82,7 +80,7 @@ pub fn parse_unsigned_amount(data: &[u8], at: usize, len: usize) -> Result<i64, 
     }
     let slice = &data[start..end];
     let s = std::str::from_utf8(slice).map_err(|_| AeatError::InvalidEncoding)?;
-    let trimmed = s.trim_start_matches(|c: char| c == '0' || c == ' ');
+    let trimmed = s.trim_start_matches(['0', ' ']);
     if trimmed.is_empty() {
         return Ok(0);
     }

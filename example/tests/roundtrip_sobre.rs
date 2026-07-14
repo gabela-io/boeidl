@@ -1,6 +1,10 @@
 //! Golden byte-exact del Modelo 130 con sobre (946 bytes) + round-trip.
 //! Cifras reales 1T 2026 (ver ~/.../test/modelo130.test.ts).
 
+// Field-by-field assignment reads clearer than a struct literal for these
+// many-field fixtures; the default()-then-assign pattern is deliberate.
+#![allow(clippy::field_reassign_with_default)]
+
 use boeidl_example::generated::sobre::{Mod130Aux, Mod130Fichero, Mod130Pagina};
 
 fn make() -> Mod130Fichero {
