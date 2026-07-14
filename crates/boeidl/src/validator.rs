@@ -112,7 +112,10 @@ pub fn validate(file: &BoeFile) -> Vec<Diagnostic> {
 
             // decimals only on signed_amount or unsigned_amount
             if f.decimals.is_some()
-                && !matches!(f.ty, FieldType::SignedAmount | FieldType::UnsignedAmount)
+                && !matches!(
+                    f.ty,
+                    FieldType::SignedAmount | FieldType::SignedAmountN | FieldType::UnsignedAmount
+                )
             {
                 diags.push(Diagnostic::error(format!(
                     "{prefix}field `{}`: `decimals` only allowed on signed_amount or unsigned_amount",
@@ -183,6 +186,46 @@ pub fn validate(file: &BoeFile) -> Vec<Diagnostic> {
                         "{prefix}check `{}`: unknown field `{}`",
                         c.code, name
                     )));
+                }
+            }
+        }
+    }
+
+    if let Some(env) = &file.envelope {
+        let record_names: HashSet<&str> = file.records.iter().map(|r| r.name.as_str()).collect();
+        let param_names: HashSet<&str> = env.params.iter().map(|p| p.name.as_str()).collect();
+
+        // params bien formados
+        for p in &env.params {
+            if p.length == 0 {
+                diags.push(Diagnostic::error(format!(
+                    "envelope param `{}`: `length` debe ser > 0",
+                    p.name
+                )));
+            }
+        }
+        // contains → records existentes
+        for name in &env.contains {
+            if !record_names.contains(name.as_str()) {
+                diags.push(Diagnostic::error(format!(
+                    "envelope `contains`: record desconocido `{name}`"
+                )));
+            }
+        }
+        if env.contains.is_empty() {
+            diags.push(Diagnostic::error(
+                "envelope `contains` no puede estar vacío".to_string(),
+            ));
+        }
+        // placeholders de header/trailer → params existentes
+        for (label, tmpl) in [("header", &env.header), ("trailer", &env.trailer)] {
+            for part in &tmpl.0 {
+                if let TemplatePart::Field(f) = part {
+                    if !param_names.contains(f.as_str()) {
+                        diags.push(Diagnostic::error(format!(
+                            "envelope {label}: `${{{f}}}` no es un param declarado"
+                        )));
+                    }
                 }
             }
         }
