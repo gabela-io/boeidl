@@ -7,7 +7,10 @@ const MOD303: &str = include_str!("../../../models/mod303.boe");
 fn mod303_has_no_errors() {
     let file = parse(MOD303).expect("parse");
     let diags = validate(&file);
-    let errors: Vec<_> = diags.iter().filter(|d| d.level == DiagLevel::Error).collect();
+    let errors: Vec<_> = diags
+        .iter()
+        .filter(|d| d.level == DiagLevel::Error)
+        .collect();
     assert!(errors.is_empty(), "unexpected errors: {errors:#?}");
 }
 

@@ -149,7 +149,10 @@ record "page2" {
     assert_eq!(file.records[1].name, "page2");
     assert_eq!(file.records[1].record_length, 20);
     let diags = boeidl::validate(&file);
-    let errors: Vec<_> = diags.iter().filter(|d| d.level == boeidl::validator::DiagLevel::Error).collect();
+    let errors: Vec<_> = diags
+        .iter()
+        .filter(|d| d.level == boeidl::validator::DiagLevel::Error)
+        .collect();
     assert!(errors.is_empty(), "unexpected errors: {errors:?}");
 }
 

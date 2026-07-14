@@ -73,9 +73,7 @@ pub fn parse(src: &str) -> Result<BoeFile, ParseError> {
     let model = model.ok_or_else(|| err("missing `model` block"))?;
 
     if !records.is_empty() && saw_top_level_item {
-        return Err(err(
-            "cannot mix top-level fields with record blocks",
-        ));
+        return Err(err("cannot mix top-level fields with record blocks"));
     }
 
     let records = if !records.is_empty() {

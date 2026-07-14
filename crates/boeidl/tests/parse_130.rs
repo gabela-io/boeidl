@@ -44,7 +44,11 @@ fn parses_full_mod130() {
 
     // 4 checks (E301, E302, E303, W001)
     assert_eq!(file.records[0].checks.len(), 4);
-    let codes: Vec<_> = file.records[0].checks.iter().map(|c| c.code.as_str()).collect();
+    let codes: Vec<_> = file.records[0]
+        .checks
+        .iter()
+        .map(|c| c.code.as_str())
+        .collect();
     assert_eq!(codes, vec!["E301", "E302", "E303", "W001"]);
 
     // Severity distribution
@@ -55,7 +59,11 @@ fn parses_full_mod130() {
 #[test]
 fn implies_rule_shape() {
     let file = parse(MOD130).unwrap();
-    let w001 = file.records[0].checks.iter().find(|c| c.code == "W001").unwrap();
+    let w001 = file.records[0]
+        .checks
+        .iter()
+        .find(|c| c.code == "W001")
+        .unwrap();
     match &w001.rule {
         BoolExpr::Implies(lhs, rhs) => {
             // lhs: tipo_declaracion == "N"
