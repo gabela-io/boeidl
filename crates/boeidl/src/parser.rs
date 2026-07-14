@@ -40,11 +40,18 @@ pub fn parse(src: &str) -> Result<BoeFile, ParseError> {
     let mut derives = Vec::new();
     let mut checks = Vec::new();
     let mut records: Vec<Record> = Vec::new();
+    let mut envelope: Option<Envelope> = None;
     let mut saw_top_level_item = false;
 
     for pair in file.into_inner() {
         match pair.as_rule() {
             Rule::model_block => model = Some(parse_model(pair)?),
+            Rule::envelope_block => {
+                if envelope.is_some() {
+                    return Err(err("sólo se permite un bloque `envelope` por fichero"));
+                }
+                envelope = Some(parse_envelope(pair)?);
+            }
             Rule::field_block => {
                 saw_top_level_item = true;
                 fields.push(parse_field(pair)?);
@@ -82,7 +89,139 @@ pub fn parse(src: &str) -> Result<BoeFile, ParseError> {
             checks,
         }]
     };
-    Ok(BoeFile { model, records })
+    Ok(BoeFile {
+        model,
+        records,
+        envelope,
+    })
+}
+
+fn parse_envelope(pair: Pair<Rule>) -> Result<Envelope, ParseError> {
+    let mut params = Vec::new();
+    let mut header: Option<Template> = None;
+    let mut trailer: Option<Template> = None;
+    let mut contains: Vec<String> = Vec::new();
+
+    for child in pair.into_inner() {
+        match child.as_rule() {
+            Rule::param_block => params.push(parse_param(child)?),
+            Rule::env_header => {
+                let t = child
+                    .into_inner()
+                    .next()
+                    .ok_or_else(|| err("header: falta plantilla"))?;
+                header = Some(parse_template(t)?);
+            }
+            Rule::env_trailer => {
+                let t = child
+                    .into_inner()
+                    .next()
+                    .ok_or_else(|| err("trailer: falta plantilla"))?;
+                trailer = Some(parse_template(t)?);
+            }
+            Rule::env_contains => {
+                for id in child.into_inner() {
+                    contains.push(id.as_str().to_string());
+                }
+            }
+            r => return Err(err(format!("regla inesperada en envelope: {r:?}"))),
+        }
+    }
+
+    Ok(Envelope {
+        params,
+        header: header.ok_or_else(|| err("envelope: falta `header`"))?,
+        trailer: trailer.ok_or_else(|| err("envelope: falta `trailer`"))?,
+        contains,
+    })
+}
+
+fn parse_template(pair: Pair<Rule>) -> Result<Template, ParseError> {
+    // pair == Rule::template; sus hijos son tmpl_part.
+    let mut parts = Vec::new();
+    for part in pair.into_inner() {
+        let inner = part
+            .into_inner()
+            .next()
+            .ok_or_else(|| err("tmpl_part vacío"))?;
+        match inner.as_rule() {
+            Rule::tmpl_ref => {
+                // el hijo del ref es el ident
+                let id = inner
+                    .into_inner()
+                    .next()
+                    .ok_or_else(|| err("tmpl_ref sin ident"))?;
+                parts.push(TemplatePart::Field(id.as_str().to_string()));
+            }
+            Rule::tmpl_text => parts.push(TemplatePart::Lit(inner.as_str().to_string())),
+            r => return Err(err(format!("regla inesperada en plantilla: {r:?}"))),
+        }
+    }
+    Ok(Template(parts))
+}
+
+fn parse_param(pair: Pair<Rule>) -> Result<Param, ParseError> {
+    let mut inner = pair.into_inner();
+    let name = inner
+        .next()
+        .ok_or_else(|| err("param: falta nombre"))?
+        .as_str()
+        .to_string();
+
+    let mut length: Option<usize> = None;
+    let mut ty: Option<FieldType> = None;
+    let mut required = false;
+    let mut description = None;
+
+    for attr in inner {
+        let (key, value) = key_value(attr)?;
+        let v = value
+            .into_inner()
+            .next()
+            .ok_or_else(|| err("param attr: valor vacío"))?;
+        match (key.as_str(), v.as_rule()) {
+            ("length", Rule::int) => {
+                length = Some(
+                    v.as_str()
+                        .parse()
+                        .map_err(|e| err(format!("length: {e}")))?,
+                )
+            }
+            ("type", Rule::ident) => {
+                ty = Some(match v.as_str() {
+                    "alpha" => FieldType::Alpha,
+                    "alphanumeric" => FieldType::Alphanumeric,
+                    "number" => FieldType::Number,
+                    other => {
+                        return Err(err(format!(
+                            "param `{name}`: tipo no soportado `{other}` (usa alpha/alphanumeric/number)"
+                        )))
+                    }
+                });
+            }
+            ("required", Rule::ident) => {
+                required = match v.as_str() {
+                    "true" => true,
+                    "false" => false,
+                    other => return Err(err(format!("required debe ser true/false, got {other}"))),
+                };
+            }
+            ("description", Rule::string) => description = Some(unquote(v.as_str())),
+            (k, r) => {
+                return Err(err(format!(
+                    "param `{name}`: atributo no soportado `{k}` (rule {r:?})"
+                )))
+            }
+        }
+    }
+
+    Ok(Param {
+        name,
+        length: length.ok_or_else(|| err("param: falta `length`"))?,
+        ty: ty.ok_or_else(|| err("param: falta `type`"))?,
+        required,
+        description,
+    })
 }
 
 fn parse_record_block(pair: Pair<Rule>) -> Result<Record, ParseError> {
@@ -255,6 +394,7 @@ fn parse_field(pair: Pair<Rule>) -> Result<Field, ParseError> {
                     "alphanumeric" => FieldType::Alphanumeric,
                     "number" => FieldType::Number,
                     "signed_amount" => FieldType::SignedAmount,
+                    "signed_n" => FieldType::SignedAmountN,
                     "unsigned_amount" => FieldType::UnsignedAmount,
                     other => return Err(err(format!("unknown field type: {other}"))),
                 });

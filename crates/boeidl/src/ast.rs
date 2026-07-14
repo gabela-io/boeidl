@@ -25,6 +25,39 @@ pub struct Record {
 pub struct BoeFile {
     pub model: Model,
     pub records: Vec<Record>,
+    pub envelope: Option<Envelope>,
+}
+
+/// Una plantilla de texto de longitud fija: literal + interpolaciones `${ident}`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum TemplatePart {
+    Lit(String),
+    /// Referencia a un `param` del envelope por nombre.
+    Field(String),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct Template(pub Vec<TemplatePart>);
+
+/// Un valor compartido a nivel fichero, interpolable en header/trailer.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Param {
+    pub name: String,
+    pub length: usize,
+    pub ty: FieldType,
+    pub required: bool,
+    pub description: Option<String>,
+}
+
+/// El "sobre" AEAT: header/trailer de longitud fija que envuelven una
+/// secuencia de `record`s (`contains`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Envelope {
+    pub params: Vec<Param>,
+    pub header: Template,
+    pub trailer: Template,
+    /// Nombres de `record` en orden de concatenación.
+    pub contains: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -43,6 +76,9 @@ pub enum FieldType {
     Alphanumeric,
     Number,
     SignedAmount,
+    /// Importe con signo estilo sobre AEAT (`numN`): positivo = dígitos a lo
+    /// ancho completo (sin espacio), negativo = `'N'` + dígitos.
+    SignedAmountN,
     UnsignedAmount,
 }
 
