@@ -21,6 +21,10 @@ pub fn generate(file: &BoeFile) -> String {
         emit_record(&mut out, &file.model, r, single);
     }
 
+    if let Some(env) = &file.envelope {
+        emit_envelope(&mut out, &file.model, env, single);
+    }
+
     out
 }
 
@@ -30,6 +34,19 @@ fn struct_name(model_number: &str, record_name: &str) -> String {
     } else {
         format!("Mod{}{}", model_number, pascal_case(record_name))
     }
+}
+
+fn file_struct_name(model_number: &str) -> String {
+    format!("Mod{model_number}Fichero")
+}
+
+/// Length of a param when interpolated (= its `length`, fixed width).
+fn param_len(env: &Envelope, name: &str) -> usize {
+    env.params
+        .iter()
+        .find(|p| p.name == name)
+        .map(|p| p.length)
+        .unwrap_or(0)
 }
 
 fn pascal_case(s: &str) -> String {
@@ -161,7 +178,7 @@ fn emit_constants(out: &mut String, file: &BoeFile) {
 fn rust_type_for(ty: FieldType) -> &'static str {
     match ty {
         FieldType::Alpha | FieldType::Alphanumeric | FieldType::Number => "String",
-        FieldType::SignedAmount | FieldType::UnsignedAmount => "i64",
+        FieldType::SignedAmount | FieldType::SignedAmountN | FieldType::UnsignedAmount => "i64",
     }
 }
 
@@ -274,6 +291,16 @@ fn emit_marshal_field(out: &mut String, f: &Field) {
             )
             .unwrap();
         }
+        FieldType::SignedAmountN => {
+            let decimals = f.decimals.unwrap_or(0);
+            writeln!(
+                out,
+                "        {{ let s = encode_signed_amount_n(\"{name}\", self.{name}, {}, {})?; \
+                 write_field(&mut buf, {}, {}, &s, \"{name}\")?; }}",
+                f.length, decimals, f.at, f.length,
+            )
+            .unwrap();
+        }
         FieldType::UnsignedAmount => {
             let decimals = f.decimals.unwrap_or(0);
             writeln!(
@@ -329,6 +356,14 @@ fn emit_unmarshal(out: &mut String, record: &Record, ctx: &Context) {
                 writeln!(
                     out,
                     "        out.{name} = parse_signed_amount(data, {}, {})?;",
+                    f.at, f.length
+                )
+                .unwrap();
+            }
+            FieldType::SignedAmountN => {
+                writeln!(
+                    out,
+                    "        out.{name} = parse_signed_amount_n(data, {}, {})?;",
                     f.at, f.length
                 )
                 .unwrap();
@@ -396,7 +431,9 @@ fn emit_expr(e: &Expr, ctx: &Context) -> String {
         Expr::Int(n) => format!("{n}i64"),
         Expr::Str(s) => format!("\"{}\"", escape_str(s)),
         Expr::Ident(name) => match ctx.field_types.get(name.as_str()) {
-            Some(FieldType::SignedAmount) | Some(FieldType::UnsignedAmount) => {
+            Some(FieldType::SignedAmount)
+            | Some(FieldType::SignedAmountN)
+            | Some(FieldType::UnsignedAmount) => {
                 format!("self.{name}")
             }
             Some(_) => format!("self.{name}.as_str()"),
@@ -437,6 +474,145 @@ fn emit_bool(b: &BoolExpr, ctx: &Context) -> String {
         }
         BoolExpr::Implies(l, r) => {
             format!("(!({}) || ({}))", emit_bool(l, ctx), emit_bool(r, ctx))
+        }
+    }
+}
+
+// ── envelope ───────────────────────────────────────────────────────────
+
+fn emit_envelope(out: &mut String, model: &Model, env: &Envelope, single: bool) {
+    let name = file_struct_name(&model.number);
+
+    // ── struct ──
+    writeln!(out, "#[derive(Debug, Clone, Default, PartialEq, Eq)]").unwrap();
+    writeln!(out, "pub struct {name} {{").unwrap();
+    for p in &env.params {
+        if let Some(d) = &p.description {
+            writeln!(out, "    /// {d}").unwrap();
+        }
+        writeln!(out, "    pub {}: String,", p.name).unwrap();
+    }
+    for rec in &env.contains {
+        writeln!(out, "    pub {}: {},", rec, struct_name(&model.number, rec)).unwrap();
+    }
+    writeln!(out, "}}").unwrap();
+    writeln!(out).unwrap();
+
+    writeln!(out, "impl {name} {{").unwrap();
+    emit_envelope_marshal(out, env);
+    emit_envelope_unmarshal(out, model, env, single);
+    writeln!(out, "}}").unwrap();
+    writeln!(out).unwrap();
+}
+
+fn emit_envelope_marshal(out: &mut String, env: &Envelope) {
+    writeln!(
+        out,
+        "    pub fn marshal(&self) -> Result<Vec<u8>, AeatError> {{"
+    )
+    .unwrap();
+    writeln!(out, "        let mut buf: Vec<u8> = Vec::new();").unwrap();
+    emit_template_marshal(out, env, &env.header);
+    for rec in &env.contains {
+        writeln!(
+            out,
+            "        buf.extend_from_slice(&self.{rec}.marshal()?);"
+        )
+        .unwrap();
+    }
+    emit_template_marshal(out, env, &env.trailer);
+    writeln!(out, "        Ok(buf)").unwrap();
+    writeln!(out, "    }}").unwrap();
+    writeln!(out).unwrap();
+}
+
+fn emit_template_marshal(out: &mut String, env: &Envelope, tmpl: &Template) {
+    for part in &tmpl.0 {
+        match part {
+            TemplatePart::Lit(s) => {
+                writeln!(
+                    out,
+                    "        append_latin1(&mut buf, \"{}\")?;",
+                    escape_str(s)
+                )
+                .unwrap();
+            }
+            TemplatePart::Field(name) => {
+                let len = param_len(env, name);
+                let ty = env.params.iter().find(|p| p.name == *name).map(|p| p.ty);
+                match ty {
+                    Some(FieldType::Number) => {
+                        writeln!(out,
+                            "        {{ let digits: String = self.{name}.chars().filter(|c| c.is_ascii_digit()).collect(); \
+                             if digits.chars().count() > {len} {{ return Err(AeatError::FieldOverflow {{ field: \"{name}\".to_string(), width: {len}, got: digits.chars().count() }}); }} \
+                             append_latin1(&mut buf, &pad_left(&digits, {len}, '0'))?; }}").unwrap();
+                    }
+                    _ => {
+                        // alpha / alphanumeric
+                        writeln!(out,
+                            "        {{ let s = pad_right(&sanitize_alphanumeric(&self.{name}), {len}, ' '); \
+                             if s.chars().count() > {len} {{ return Err(AeatError::FieldOverflow {{ field: \"{name}\".to_string(), width: {len}, got: s.chars().count() }}); }} \
+                             append_latin1(&mut buf, &s)?; }}").unwrap();
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn emit_envelope_unmarshal(out: &mut String, model: &Model, env: &Envelope, single: bool) {
+    writeln!(
+        out,
+        "    pub fn unmarshal(data: &[u8]) -> Result<Self, AeatError> {{"
+    )
+    .unwrap();
+    writeln!(out, "        let mut out = Self::default();").unwrap();
+    writeln!(out, "        let mut off = 0usize;").unwrap();
+    emit_template_unmarshal(out, env, &env.header, "header");
+    for rec in &env.contains {
+        let rl_const = record_length_const_name(rec, single);
+        let st = struct_name(&model.number, rec);
+        writeln!(out,
+            "        {{ let end = off + {rl_const}; if data.len() < end {{ return Err(AeatError::ShortRecord {{ expected: end, got: data.len() }}); }} \
+             out.{rec} = {st}::unmarshal(&data[off..end])?; off = end; }}").unwrap();
+    }
+    emit_template_unmarshal(out, env, &env.trailer, "trailer");
+    writeln!(out, "        let _ = off;").unwrap();
+    writeln!(out, "        Ok(out)").unwrap();
+    writeln!(out, "    }}").unwrap();
+    writeln!(out).unwrap();
+}
+
+fn emit_template_unmarshal(out: &mut String, env: &Envelope, tmpl: &Template, ctx: &str) {
+    for part in &tmpl.0 {
+        match part {
+            TemplatePart::Lit(s) => {
+                writeln!(
+                    out,
+                    "        verify_literal(data, off, \"{}\", \"{ctx}\")?; off += {};",
+                    escape_str(s),
+                    s.chars().count()
+                )
+                .unwrap();
+            }
+            TemplatePart::Field(name) => {
+                let len = param_len(env, name);
+                let ty = env.params.iter().find(|p| p.name == *name).map(|p| p.ty);
+                // read_field is 1-indexed; off is 0-indexed.
+                match ty {
+                    Some(FieldType::Number) => {
+                        writeln!(
+                            out,
+                            "        out.{name} = read_field(data, off + 1, {len}); off += {len};"
+                        )
+                        .unwrap();
+                    }
+                    _ => {
+                        writeln!(out,
+                            "        out.{name} = read_field(data, off + 1, {len}).trim_end().to_string(); off += {len};").unwrap();
+                    }
+                }
+            }
         }
     }
 }
