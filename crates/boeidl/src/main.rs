@@ -108,7 +108,8 @@ fn cmd_inspect(input: &Path) -> Result<(), String> {
         "#", "Name", "At", "Len", "Type", "Fixed"
     );
     println!("{}", "─".repeat(100));
-    for (i, f) in file.fields.iter().enumerate() {
+    let all_fields: Vec<&Field> = file.records.iter().flat_map(|r| r.fields.iter()).collect();
+    for (i, f) in all_fields.iter().enumerate() {
         println!(
             "{:<4} {:<32} {:<6} {:<6} {:<14} {:<14} {}",
             i + 1,
@@ -124,8 +125,10 @@ fn cmd_inspect(input: &Path) -> Result<(), String> {
         );
     }
     println!();
-    println!("Derives: {}", file.derives.len());
-    println!("Checks: {}", file.checks.len());
+    let derives: usize = file.records.iter().map(|r| r.derives.len()).sum();
+    let checks: usize = file.records.iter().map(|r| r.checks.len()).sum();
+    println!("Derives: {}", derives);
+    println!("Checks: {}", checks);
     Ok(())
 }
 
@@ -137,6 +140,10 @@ fn field_type_name(f: &Field) -> String {
         FieldType::SignedAmount => match f.decimals {
             Some(d) => format!("amount({d})"),
             None => "amount".to_string(),
+        },
+        FieldType::UnsignedAmount => match f.decimals {
+            Some(d) => format!("uamount({d})"),
+            None => "uamount".to_string(),
         },
     }
 }
