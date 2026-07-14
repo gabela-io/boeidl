@@ -17,6 +17,12 @@ pub enum AeatError {
     /// The incoming byte buffer contains bytes that are not valid ISO-8859-1.
     /// (All bytes are valid ISO-8859-1, so this is never raised — kept for API stability.)
     InvalidEncoding,
+    /// Un delimitador fijo esperado del sobre (`<T130…>`, `<AUX>`, …) no coincide.
+    InvalidDelimiter {
+        context: String,
+        expected: String,
+        got: String,
+    },
 }
 
 impl std::fmt::Display for AeatError {
@@ -36,6 +42,14 @@ impl std::fmt::Display for AeatError {
                 write!(f, "record too short: expected {expected} bytes, got {got}")
             }
             Self::InvalidEncoding => f.write_str("invalid ISO-8859-1 encoding"),
+            Self::InvalidDelimiter {
+                context,
+                expected,
+                got,
+            } => write!(
+                f,
+                "delimitador inválido en {context}: esperaba `{expected}`, encontrado `{got}`"
+            ),
         }
     }
 }

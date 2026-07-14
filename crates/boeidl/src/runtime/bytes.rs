@@ -92,6 +92,71 @@ pub fn parse_unsigned_amount(data: &[u8], at: usize, len: usize) -> Result<i64, 
     })
 }
 
+/// Append `s` to `buf`, one ISO-8859-1 byte per char (each `c as u32` < 256).
+/// Used by the envelope marshaler for header/trailer templates (sequential,
+/// unlike `write_field`'s fixed positions).
+pub fn append_latin1(buf: &mut Vec<u8>, s: &str) -> Result<(), AeatError> {
+    for c in s.chars() {
+        let cp = c as u32;
+        if cp >= 256 {
+            return Err(AeatError::InvalidValue {
+                field: "<template>".to_string(),
+                value: s.to_string(),
+            });
+        }
+        buf.push(cp as u8);
+    }
+    Ok(())
+}
+
+/// Verify that the fixed literal `expected` sits at 0-indexed byte offset `at`
+/// in `data`. `context` names the segment for the error message.
+pub fn verify_literal(
+    data: &[u8],
+    at: usize,
+    expected: &str,
+    context: &str,
+) -> Result<(), AeatError> {
+    let want: Vec<u8> = expected.chars().map(|c| c as u8).collect();
+    let end = at + want.len();
+    if data.len() < end {
+        return Err(AeatError::ShortRecord {
+            expected: end,
+            got: data.len(),
+        });
+    }
+    if data[at..end] != want[..] {
+        let got: String = data[at..end].iter().map(|&b| char::from(b)).collect();
+        return Err(AeatError::InvalidDelimiter {
+            context: context.to_string(),
+            expected: expected.to_string(),
+            got,
+        });
+    }
+    Ok(())
+}
+
+/// Parse an envelope-style (`numN`) signed amount: `'N'`-prefixed → negative,
+/// otherwise all digits → positive. Mirror of `encode_signed_amount_n`.
+pub fn parse_signed_amount_n(buf: &[u8], at: usize, width: usize) -> Result<i64, AeatError> {
+    let s = read_field(buf, at, width);
+    let (sign, rest): (i64, String) = if s.starts_with('N') {
+        (-1, s.chars().skip(1).collect())
+    } else {
+        (1, s.clone())
+    };
+    let trimmed = rest.trim_start_matches(['0', ' ']);
+    let n: i64 = if trimmed.is_empty() {
+        0
+    } else {
+        trimmed.parse().map_err(|_| AeatError::InvalidValue {
+            field: format!("<at {at}>"),
+            value: s.clone(),
+        })?
+    };
+    Ok(sign * n)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -140,5 +205,45 @@ mod tests {
             parse_unsigned_amount(b"00000000001000000", 1, 17).unwrap(),
             1_000_000
         );
+    }
+
+    #[test]
+    fn append_latin1_pushes_bytes() {
+        let mut buf = Vec::new();
+        append_latin1(&mut buf, "<AUX>").unwrap();
+        assert_eq!(buf, b"<AUX>");
+        append_latin1(&mut buf, "PEÑA").unwrap();
+        assert_eq!(buf[5], b'P');
+        assert_eq!(buf[7], 0xD1); // Ñ
+    }
+
+    #[test]
+    fn append_latin1_rejects_non_latin1() {
+        let mut buf = Vec::new();
+        assert!(append_latin1(&mut buf, "€").is_err());
+    }
+
+    #[test]
+    fn verify_literal_ok_and_mismatch() {
+        let data = b"<T13002026";
+        verify_literal(data, 0, "<T1300", "header").unwrap();
+        let err = verify_literal(data, 0, "<AUX>", "header").unwrap_err();
+        matches!(err, AeatError::InvalidDelimiter { .. });
+    }
+
+    #[test]
+    fn verify_literal_short_data() {
+        let err = verify_literal(b"<T", 0, "<T1300", "header").unwrap_err();
+        matches!(err, AeatError::ShortRecord { .. });
+    }
+
+    #[test]
+    fn parse_signed_n_roundtrip() {
+        let mut buf = vec![b' '; 20];
+        write_field(&mut buf, 1, 17, "00000000001128041", "x").unwrap();
+        assert_eq!(parse_signed_amount_n(&buf, 1, 17).unwrap(), 1_128_041);
+        let mut buf = vec![b' '; 20];
+        write_field(&mut buf, 1, 17, "N0000000000018695", "x").unwrap();
+        assert_eq!(parse_signed_amount_n(&buf, 1, 17).unwrap(), -18_695);
     }
 }

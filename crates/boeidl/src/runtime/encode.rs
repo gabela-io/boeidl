@@ -112,6 +112,48 @@ pub fn encode_unsigned_amount(
     Ok(pad_left(&s, width, '0'))
 }
 
+/// Encode a signed amount in the AEAT **envelope** (`numN`) convention:
+/// - `value >= 0`: `width` digits, zero-padded, NO sign char.
+/// - `value < 0`:  `'N'` + `width - 1` digits, zero-padded.
+///
+/// Differs from `encode_signed_amount` (flat DR, `' '`-for-positive). `value`
+/// is the integer including decimals (12345 == 123.45 with 2 decimals).
+pub fn encode_signed_amount_n(
+    field: &str,
+    value: i64,
+    width: usize,
+    _decimals: usize,
+) -> Result<String, AeatError> {
+    if width == 0 {
+        return Err(AeatError::FieldOverflow {
+            field: field.to_string(),
+            width,
+            got: 1,
+        });
+    }
+    let digits = value.unsigned_abs().to_string();
+    if value < 0 {
+        let dw = width - 1;
+        if digits.chars().count() > dw {
+            return Err(AeatError::FieldOverflow {
+                field: field.to_string(),
+                width,
+                got: digits.chars().count() + 1,
+            });
+        }
+        Ok(format!("N{}", pad_left(&digits, dw, '0')))
+    } else {
+        if digits.chars().count() > width {
+            return Err(AeatError::FieldOverflow {
+                field: field.to_string(),
+                width,
+                got: digits.chars().count(),
+            });
+        }
+        Ok(pad_left(&digits, width, '0'))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -198,5 +240,31 @@ mod tests {
             } => {}
             other => panic!("unexpected: {other:?}"),
         }
+    }
+
+    #[test]
+    fn encode_signed_n_positive_is_all_digits() {
+        assert_eq!(
+            encode_signed_amount_n("x", 1_128_041, 17, 2).unwrap(),
+            "00000000001128041"
+        );
+        assert_eq!(
+            encode_signed_amount_n("x", 0, 17, 2).unwrap(),
+            "00000000000000000"
+        );
+    }
+
+    #[test]
+    fn encode_signed_n_negative_has_n_prefix() {
+        assert_eq!(
+            encode_signed_amount_n("x", -18_695, 17, 2).unwrap(),
+            "N0000000000018695"
+        );
+    }
+
+    #[test]
+    fn encode_signed_n_overflow() {
+        assert!(encode_signed_amount_n("x", 10_i64.pow(17), 17, 2).is_err());
+        assert!(encode_signed_amount_n("x", -(10_i64.pow(16)), 17, 2).is_err());
     }
 }
