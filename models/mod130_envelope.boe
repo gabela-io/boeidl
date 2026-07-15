@@ -1,4 +1,4 @@
-# Modelo 130 "con sobre" — fichero de presentación real (DR130e15v12).
+# Modelo 130 "con envelope" — fichero de presentación real (DR130e15v12).
 # 946 bytes = header(17) + aux(311) + pagina(600) + trailer(18). SIN CRLF.
 # NO sustituye a mod130.boe (registro plano de 878). Import/presentación en Sede.
 # Layout validado byte-exact contra ficheros reales (ver test/modelo130.test.ts).
@@ -29,9 +29,9 @@ record "pagina" {
     field nif       { at = 14  length = 9  type = alphanumeric required = true description = "NIF del declarante." }
     field apellidos { at = 23  length = 60 type = alphanumeric description = "Apellidos del declarante." }
     field nombre    { at = 83  length = 20 type = alphanumeric description = "Nombre del declarante." }
-    field ejercicio { at = 103 length = 4  type = number required = true description = "Ejercicio (AAAA). Debe coincidir con el del sobre." }
+    field ejercicio { at = 103 length = 4  type = number required = true description = "Ejercicio (AAAA). Debe coincidir con el del envelope." }
     field periodo   { at = 107 length = 2  type = alphanumeric required = true domain = "1T|2T|3T|4T"
-        description = "Periodo. Debe coincidir con el del sobre." }
+        description = "Periodo. Debe coincidir con el del envelope." }
 
     field c01_ingresos          { at = 109 length = 17 type = unsigned_amount decimals = 2 description = "[01] Ingresos computables." }
     field c02_gastos            { at = 126 length = 17 type = unsigned_amount decimals = 2 description = "[02] Gastos deducibles." }
@@ -81,7 +81,7 @@ record "pagina" {
         severity = warning message = "Declaración negativa: [19] debería ser <= 0." }
 }
 
-# ── SOBRE ─────────────────────────────────────────────────────────────────────
+# ── ENVELOPE ──────────────────────────────────────────────────────────────────
 envelope {
     param ejercicio { length = 4 type = number       required = true description = "Ejercicio (AAAA)." }
     param periodo   { length = 2 type = alphanumeric  required = true description = "Periodo (1T..4T)." }

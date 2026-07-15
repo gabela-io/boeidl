@@ -33,12 +33,12 @@ fn main() {
     let out_path = out_dir.join("mod130.rs");
     std::fs::write(&out_path, code).expect("write generated mod130.rs");
 
-    // Modelo 130 con sobre.
-    let input_env = PathBuf::from("../models/mod130_sobre.boe");
+    // Modelo 130 con envelope.
+    let input_env = PathBuf::from("../models/mod130_envelope.boe");
     println!("cargo:rerun-if-changed={}", input_env.display());
     let src_env = std::fs::read_to_string(&input_env)
         .unwrap_or_else(|e| panic!("reading {}: {e}", input_env.display()));
-    let file_env = boeidl::parse(&src_env).expect("parse mod130_sobre.boe");
+    let file_env = boeidl::parse(&src_env).expect("parse mod130_envelope.boe");
     let errors_env: Vec<_> = boeidl::validate(&file_env)
         .into_iter()
         .filter(|d| d.level == boeidl::DiagLevel::Error)
@@ -47,8 +47,8 @@ fn main() {
         for d in &errors_env {
             eprintln!("semantic error: {}", d.message);
         }
-        panic!("mod130_sobre.boe failed semantic validation");
+        panic!("mod130_envelope.boe failed semantic validation");
     }
     let code_env = boeidl::codegen::rust::generate(&file_env);
-    std::fs::write(out_dir.join("mod130_sobre.rs"), code_env).expect("write mod130_sobre.rs");
+    std::fs::write(out_dir.join("mod130_envelope.rs"), code_env).expect("write mod130_envelope.rs");
 }

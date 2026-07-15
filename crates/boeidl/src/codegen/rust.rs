@@ -37,7 +37,7 @@ fn struct_name(model_number: &str, record_name: &str) -> String {
 }
 
 fn file_struct_name(model_number: &str) -> String {
-    format!("Mod{model_number}Fichero")
+    format!("Mod{model_number}Envelope")
 }
 
 /// Length of a param when interpolated (= its `length`, fixed width).

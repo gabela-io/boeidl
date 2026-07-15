@@ -1,13 +1,13 @@
-//! Golden byte-exact del Modelo 130 con sobre (946 bytes) + round-trip.
+//! Golden byte-exact del Modelo 130 con envelope (946 bytes) + round-trip.
 //! Cifras reales 1T 2026 (ver ~/.../test/modelo130.test.ts).
 
 // Field-by-field assignment reads clearer than a struct literal for these
 // many-field fixtures; the default()-then-assign pattern is deliberate.
 #![allow(clippy::field_reassign_with_default)]
 
-use boeidl_example::generated::sobre::{Mod130Aux, Mod130Fichero, Mod130Pagina};
+use boeidl_example::generated::envelope::{Mod130Aux, Mod130Envelope, Mod130Pagina};
 
-fn make() -> Mod130Fichero {
+fn make() -> Mod130Envelope {
     let mut pag = Mod130Pagina::default();
     pag.tipo_declaracion = "I".to_string();
     pag.nif = "09030055W".to_string();
@@ -19,7 +19,7 @@ fn make() -> Mod130Fichero {
     pag.c02_gastos = 240_715; //     2407.15
     pag.compute_derived(); // [03]=5640204, [04]=1128041, [07]=[12]=[14]=[17]=[19]=1128041
 
-    Mod130Fichero {
+    Mod130Envelope {
         ejercicio: "2026".to_string(),
         periodo: "1T".to_string(),
         aux: Mod130Aux::default(),
@@ -65,7 +65,7 @@ fn casillas_encoding() {
 fn round_trip() {
     let f = make();
     let b = f.marshal().unwrap();
-    let f2 = Mod130Fichero::unmarshal(&b).unwrap();
+    let f2 = Mod130Envelope::unmarshal(&b).unwrap();
     assert_eq!(f2.ejercicio, "2026");
     assert_eq!(f2.periodo, "1T");
     assert_eq!(f2.pagina.nif, "09030055W");
@@ -78,7 +78,7 @@ fn round_trip() {
 fn unmarshal_rejects_bad_header() {
     let mut b = make().marshal().unwrap();
     b[0] = b'X'; // rompe "<T1300…"
-    assert!(Mod130Fichero::unmarshal(&b).is_err());
+    assert!(Mod130Envelope::unmarshal(&b).is_err());
 }
 
 #[test]
@@ -88,7 +88,7 @@ fn unmarshal_rejects_corrupt_inner_tag() {
     let mut b = make().marshal().unwrap();
     assert_eq!(&b[328..339], b"<T13001000>");
     b[328] = b'X';
-    assert!(Mod130Fichero::unmarshal(&b).is_err());
+    assert!(Mod130Envelope::unmarshal(&b).is_err());
 }
 
 #[test]
@@ -98,5 +98,5 @@ fn unmarshal_rejects_divergent_trailer() {
     let mut b = make().marshal().unwrap();
     assert_eq!(&b[935..939], b"2026");
     b[935] = b'3'; // "2026" -> "3026"
-    assert!(Mod130Fichero::unmarshal(&b).is_err());
+    assert!(Mod130Envelope::unmarshal(&b).is_err());
 }

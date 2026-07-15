@@ -17,7 +17,7 @@ pub enum AeatError {
     /// The incoming byte buffer contains bytes that are not valid ISO-8859-1.
     /// (All bytes are valid ISO-8859-1, so this is never raised — kept for API stability.)
     InvalidEncoding,
-    /// Un delimitador fijo esperado del sobre (`<T130…>`, `<AUX>`, …) no coincide.
+    /// Un delimitador fijo esperado del envelope (`<T130…>`, `<AUX>`, …) no coincide.
     InvalidDelimiter {
         context: String,
         expected: String,

@@ -69,7 +69,7 @@ record_length_kv = { "record_length" ~ "=" ~ int }
 // ── param (valor compartido a nivel fichero) ─────────────────────────────
 param_block = { "param" ~ ident ~ "{" ~ field_attr* ~ "}" }
 
-// ── envelope (sobre) ─────────────────────────────────────────────────────
+// ── envelope ─────────────────────────────────────────────────────────────
 envelope_block = { "envelope" ~ "{"
     ~ (param_block | env_header | env_trailer | env_contains)*
     ~ "}" }

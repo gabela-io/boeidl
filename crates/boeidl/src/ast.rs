@@ -49,7 +49,7 @@ pub struct Param {
     pub description: Option<String>,
 }
 
-/// El "sobre" AEAT: header/trailer de longitud fija que envuelven una
+/// El envelope AEAT: header/trailer de longitud fija que envuelven una
 /// secuencia de `record`s (`contains`).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Envelope {
@@ -76,7 +76,7 @@ pub enum FieldType {
     Alphanumeric,
     Number,
     SignedAmount,
-    /// Importe con signo estilo sobre AEAT (`numN`): positivo = dígitos a lo
+    /// Importe con signo estilo envelope AEAT (`numN`): positivo = dígitos a lo
     /// ancho completo (sin espacio), negativo = `'N'` + dígitos.
     SignedAmountN,
     UnsignedAmount,

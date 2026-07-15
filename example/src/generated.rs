@@ -11,6 +11,6 @@ mod inner {
 pub use inner::*;
 
 #[allow(unused, clippy::all, unused_parens, dead_code, non_snake_case)]
-pub mod sobre {
-    include!(concat!(env!("OUT_DIR"), "/mod130_sobre.rs"));
+pub mod envelope {
+    include!(concat!(env!("OUT_DIR"), "/mod130_envelope.rs"));
 }
