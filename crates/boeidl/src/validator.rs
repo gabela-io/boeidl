@@ -229,6 +229,25 @@ pub fn validate(file: &BoeFile) -> Vec<Diagnostic> {
                 }
             }
         }
+        // Unicidad de campos del struct generado: cada `param` y cada record de
+        // `contains` se convierte en un campo de `Mod<n>Envelope`, así que sus
+        // nombres no pueden colisionar (entre sí, repetidos, ni param↔record).
+        let mut struct_fields: HashSet<&str> = HashSet::new();
+        for p in &env.params {
+            if !struct_fields.insert(p.name.as_str()) {
+                diags.push(Diagnostic::error(format!(
+                    "envelope: nombre de param duplicado `{}`",
+                    p.name
+                )));
+            }
+        }
+        for name in &env.contains {
+            if !struct_fields.insert(name.as_str()) {
+                diags.push(Diagnostic::error(format!(
+                    "envelope: `{name}` en `contains` colisiona con un param o está repetido (cada param/record es un campo del struct generado)"
+                )));
+            }
+        }
     }
 
     diags
