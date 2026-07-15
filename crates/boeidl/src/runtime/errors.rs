@@ -45,7 +45,10 @@ impl std::fmt::Display for AeatError {
                 write!(f, "record too short: expected {expected} bytes, got {got}")
             }
             Self::WrongLength { expected, got } => {
-                write!(f, "wrong length: expected exactly {expected} bytes, got {got}")
+                write!(
+                    f,
+                    "wrong length: expected exactly {expected} bytes, got {got}"
+                )
             }
             Self::InvalidEncoding => f.write_str("invalid ISO-8859-1 encoding"),
             Self::InvalidDelimiter {

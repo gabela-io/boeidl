@@ -517,7 +517,13 @@ fn envelope_length(env: &Envelope, records: &[Record]) -> usize {
     tmpl_len(&env.header) + body + tmpl_len(&env.trailer)
 }
 
-fn emit_envelope(out: &mut String, model: &Model, env: &Envelope, records: &[Record], single: bool) {
+fn emit_envelope(
+    out: &mut String,
+    model: &Model,
+    env: &Envelope,
+    records: &[Record],
+    single: bool,
+) {
     let name = file_struct_name(&model.number);
 
     // ── struct ──
