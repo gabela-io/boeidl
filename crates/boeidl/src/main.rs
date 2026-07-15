@@ -26,9 +26,13 @@ enum Cmd {
     Compile {
         /// Input .boe file
         input: PathBuf,
-        /// Output directory. A file named `mod<number>.rs` will be written.
+        /// Output directory. A file named `<name>.rs` will be written.
         #[arg(long)]
         out: PathBuf,
+        /// Output module file name (without `.rs`). Defaults to the input file
+        /// stem, so two models with the same number don't overwrite each other.
+        #[arg(long)]
+        name: Option<String>,
     },
     /// Parse and validate a .boe file without generating code.
     Check { input: PathBuf },
@@ -49,7 +53,7 @@ fn main() -> ExitCode {
 
 fn run(cli: Cli) -> Result<(), String> {
     match cli.cmd {
-        Cmd::Compile { input, out } => cmd_compile(&input, &out),
+        Cmd::Compile { input, out, name } => cmd_compile(&input, &out, name.as_deref()),
         Cmd::Check { input } => cmd_check(&input),
         Cmd::Inspect { input } => cmd_inspect(&input),
     }
@@ -78,11 +82,22 @@ fn load(input: &Path) -> Result<BoeFile, String> {
     Ok(file)
 }
 
-fn cmd_compile(input: &Path, out_dir: &Path) -> Result<(), String> {
+fn cmd_compile(input: &Path, out_dir: &Path, name: Option<&str>) -> Result<(), String> {
     let file = load(input)?;
     let src = generate(&file);
     std::fs::create_dir_all(out_dir).map_err(|e| format!("creating {}: {e}", out_dir.display()))?;
-    let out_path = out_dir.join(format!("mod{}.rs", file.model.number));
+    // Default output name is the input file stem (not `mod<number>`), so two
+    // models of the same number (e.g. flat mod130 vs the envelope variant)
+    // don't silently overwrite one another. `--name` overrides it.
+    let stem = match name {
+        Some(n) => n.to_string(),
+        None => input
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .ok_or_else(|| format!("cannot derive output name from {}", input.display()))?
+            .to_string(),
+    };
+    let out_path = out_dir.join(format!("{stem}.rs"));
     std::fs::write(&out_path, src).map_err(|e| format!("writing {}: {e}", out_path.display()))?;
     eprintln!("wrote {}", out_path.display());
     Ok(())
