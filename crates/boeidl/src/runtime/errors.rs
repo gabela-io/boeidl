@@ -14,6 +14,9 @@ pub enum AeatError {
     InvalidValue { field: String, value: String },
     /// The incoming byte buffer is shorter than `record_length`.
     ShortRecord { expected: usize, got: usize },
+    /// The incoming byte buffer is not exactly the fixed length of an envelope
+    /// file (too short — which would otherwise panic — or has trailing data).
+    WrongLength { expected: usize, got: usize },
     /// The incoming byte buffer contains bytes that are not valid ISO-8859-1.
     /// (All bytes are valid ISO-8859-1, so this is never raised — kept for API stability.)
     InvalidEncoding,
@@ -40,6 +43,9 @@ impl std::fmt::Display for AeatError {
             }
             Self::ShortRecord { expected, got } => {
                 write!(f, "record too short: expected {expected} bytes, got {got}")
+            }
+            Self::WrongLength { expected, got } => {
+                write!(f, "wrong length: expected exactly {expected} bytes, got {got}")
             }
             Self::InvalidEncoding => f.write_str("invalid ISO-8859-1 encoding"),
             Self::InvalidDelimiter {

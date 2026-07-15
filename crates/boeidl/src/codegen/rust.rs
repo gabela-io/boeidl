@@ -22,7 +22,7 @@ pub fn generate(file: &BoeFile) -> String {
     }
 
     if let Some(env) = &file.envelope {
-        emit_envelope(&mut out, &file.model, env, single);
+        emit_envelope(&mut out, &file.model, env, &file.records, single);
     }
 
     out
@@ -492,7 +492,32 @@ fn emit_bool(b: &BoolExpr, ctx: &Context) -> String {
 
 // ── envelope ───────────────────────────────────────────────────────────
 
-fn emit_envelope(out: &mut String, model: &Model, env: &Envelope, single: bool) {
+/// Total byte length of the envelope file: header + all contained records +
+/// trailer. Everything is fixed-length, so this is a compile-time constant.
+fn envelope_length(env: &Envelope, records: &[Record]) -> usize {
+    let tmpl_len = |t: &Template| -> usize {
+        t.0.iter()
+            .map(|p| match p {
+                TemplatePart::Lit(s) => s.chars().count(),
+                TemplatePart::Field(name) => param_len(env, name),
+            })
+            .sum()
+    };
+    let body: usize = env
+        .contains
+        .iter()
+        .map(|rec| {
+            records
+                .iter()
+                .find(|r| r.name == *rec)
+                .map(|r| r.record_length)
+                .unwrap_or(0)
+        })
+        .sum();
+    tmpl_len(&env.header) + body + tmpl_len(&env.trailer)
+}
+
+fn emit_envelope(out: &mut String, model: &Model, env: &Envelope, records: &[Record], single: bool) {
     let name = file_struct_name(&model.number);
 
     // ── struct ──
@@ -512,7 +537,7 @@ fn emit_envelope(out: &mut String, model: &Model, env: &Envelope, single: bool) 
 
     writeln!(out, "impl {name} {{").unwrap();
     emit_envelope_marshal(out, env);
-    emit_envelope_unmarshal(out, model, env, single);
+    emit_envelope_unmarshal(out, model, env, records, single);
     writeln!(out, "}}").unwrap();
     writeln!(out).unwrap();
 }
@@ -572,10 +597,24 @@ fn emit_template_marshal(out: &mut String, env: &Envelope, tmpl: &Template) {
     }
 }
 
-fn emit_envelope_unmarshal(out: &mut String, model: &Model, env: &Envelope, single: bool) {
+fn emit_envelope_unmarshal(
+    out: &mut String,
+    model: &Model,
+    env: &Envelope,
+    records: &[Record],
+    single: bool,
+) {
+    let total = envelope_length(env, records);
     writeln!(
         out,
         "    pub fn unmarshal(data: &[u8]) -> Result<Self, AeatError> {{"
+    )
+    .unwrap();
+    // Exact-length guard: rejects short buffers (which would otherwise panic in
+    // the unchecked `read_field` slice) and trailing data past the envelope.
+    writeln!(
+        out,
+        "        if data.len() != {total} {{ return Err(AeatError::WrongLength {{ expected: {total}, got: data.len() }}); }}"
     )
     .unwrap();
     writeln!(out, "        let mut out = Self::default();").unwrap();

@@ -100,3 +100,24 @@ fn unmarshal_rejects_divergent_trailer() {
     b[935] = b'3'; // "2026" -> "3026"
     assert!(Mod130Envelope::unmarshal(&b).is_err());
 }
+
+#[test]
+fn unmarshal_rejects_short_buffer_without_panic() {
+    // Buffers demasiado cortos deben devolver Err, NO hacer panic (el read_field
+    // del header hacía slice sin comprobar límites). Cubre el rango 6..17 y otros.
+    let b = make().marshal().unwrap();
+    for len in [0usize, 6, 9, 17, 328, 945] {
+        assert!(
+            Mod130Envelope::unmarshal(&b[..len]).is_err(),
+            "len {len} debería ser Err"
+        );
+    }
+}
+
+#[test]
+fn unmarshal_rejects_trailing_data() {
+    // Un fichero de 946 bytes válido + basura al final debe rechazarse.
+    let mut b = make().marshal().unwrap();
+    b.extend_from_slice(&[b'Z'; 32]);
+    assert!(Mod130Envelope::unmarshal(&b).is_err());
+}
