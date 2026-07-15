@@ -80,3 +80,23 @@ fn unmarshal_rejects_bad_header() {
     b[0] = b'X'; // rompe "<T1300…"
     assert!(Mod130Fichero::unmarshal(&b).is_err());
 }
+
+#[test]
+fn unmarshal_rejects_corrupt_inner_tag() {
+    // El tag interno de página "<T13001000>" empieza en el offset 328
+    // (header 17 + aux 311). Un byte corrupto ahí debe fallar, no "curarse".
+    let mut b = make().marshal().unwrap();
+    assert_eq!(&b[328..339], b"<T13001000>");
+    b[328] = b'X';
+    assert!(Mod130Fichero::unmarshal(&b).is_err());
+}
+
+#[test]
+fn unmarshal_rejects_divergent_trailer() {
+    // El ejercicio del trailer (offset 935..939) debe coincidir con el del
+    // header; si diverge, unmarshal falla en vez de dejar ganar al trailer.
+    let mut b = make().marshal().unwrap();
+    assert_eq!(&b[935..939], b"2026");
+    b[935] = b'3'; // "2026" -> "3026"
+    assert!(Mod130Fichero::unmarshal(&b).is_err());
+}

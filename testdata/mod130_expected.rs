@@ -152,6 +152,9 @@ impl Mod130 {
     pub fn unmarshal(data: &[u8]) -> Result<Self, AeatError> {
         if data.len() < RECORD_LENGTH { return Err(AeatError::ShortRecord { expected: RECORD_LENGTH, got: data.len() }); }
         let mut out = Self::default();
+        verify_literal(data, 0, "130", "modelo")?;
+        verify_literal(data, 3, "01", "pagina")?;
+        verify_literal(data, 5, " ", "indicador_complementaria")?;
         out.tipo_declaracion = read_field(data, 7, 1).trim_end().to_string();
         out.codigo_administracion = read_field(data, 8, 5);
         out.nif = read_field(data, 13, 9).trim_end().to_string();

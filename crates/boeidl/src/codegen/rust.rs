@@ -331,8 +331,20 @@ fn emit_unmarshal(out: &mut String, record: &Record, ctx: &Context) {
     writeln!(out, "        let mut out = Self::default();").unwrap();
 
     for f in &record.fields {
-        if f.fixed.is_some() {
-            continue; // not a struct field
+        if let Some(fixed) = &f.fixed {
+            // Fixed fields aren't struct members, but we still verify the
+            // literal is present so a corrupted delimiter (e.g. `<AUX>`,
+            // `<T13001000>`, the `130` model tag) fails loudly on import.
+            // `at` is 1-indexed; `verify_literal` takes a 0-indexed offset.
+            writeln!(
+                out,
+                "        verify_literal(data, {}, \"{}\", \"{}\")?;",
+                f.at - 1,
+                escape_str(fixed),
+                f.name
+            )
+            .unwrap();
+            continue;
         }
         let name = &f.name;
         match f.ty {
@@ -568,7 +580,9 @@ fn emit_envelope_unmarshal(out: &mut String, model: &Model, env: &Envelope, sing
     .unwrap();
     writeln!(out, "        let mut out = Self::default();").unwrap();
     writeln!(out, "        let mut off = 0usize;").unwrap();
-    emit_template_unmarshal(out, env, &env.header, "header");
+    // Header params are the source of truth (assigned); the trailer's copies
+    // are verified to match so a file with divergent header/trailer fails.
+    emit_template_unmarshal(out, env, &env.header, "header", true);
     for rec in &env.contains {
         let rl_const = record_length_const_name(rec, single);
         let st = struct_name(&model.number, rec);
@@ -576,14 +590,24 @@ fn emit_envelope_unmarshal(out: &mut String, model: &Model, env: &Envelope, sing
             "        {{ let end = off + {rl_const}; if data.len() < end {{ return Err(AeatError::ShortRecord {{ expected: end, got: data.len() }}); }} \
              out.{rec} = {st}::unmarshal(&data[off..end])?; off = end; }}").unwrap();
     }
-    emit_template_unmarshal(out, env, &env.trailer, "trailer");
+    emit_template_unmarshal(out, env, &env.trailer, "trailer", false);
     writeln!(out, "        let _ = off;").unwrap();
     writeln!(out, "        Ok(out)").unwrap();
     writeln!(out, "    }}").unwrap();
     writeln!(out).unwrap();
 }
 
-fn emit_template_unmarshal(out: &mut String, env: &Envelope, tmpl: &Template, ctx: &str) {
+/// Emit unmarshal code for a header/trailer template. `assign` picks the mode:
+/// the header assigns params into `out`; the trailer verifies its param copies
+/// equal the header-derived values (and errors on mismatch). Literals are always
+/// verified. `read_field` is 1-indexed; `off` is 0-indexed, hence `off + 1`.
+fn emit_template_unmarshal(
+    out: &mut String,
+    env: &Envelope,
+    tmpl: &Template,
+    ctx: &str,
+    assign: bool,
+) {
     for part in &tmpl.0 {
         match part {
             TemplatePart::Lit(s) => {
@@ -598,19 +622,16 @@ fn emit_template_unmarshal(out: &mut String, env: &Envelope, tmpl: &Template, ct
             TemplatePart::Field(name) => {
                 let len = param_len(env, name);
                 let ty = env.params.iter().find(|p| p.name == *name).map(|p| p.ty);
-                // read_field is 1-indexed; off is 0-indexed.
-                match ty {
-                    Some(FieldType::Number) => {
-                        writeln!(
-                            out,
-                            "        out.{name} = read_field(data, off + 1, {len}); off += {len};"
-                        )
-                        .unwrap();
-                    }
-                    _ => {
-                        writeln!(out,
-                            "        out.{name} = read_field(data, off + 1, {len}).trim_end().to_string(); off += {len};").unwrap();
-                    }
+                // Number params keep their raw (zero-padded) string; text params trim.
+                let read = match ty {
+                    Some(FieldType::Number) => format!("read_field(data, off + 1, {len})"),
+                    _ => format!("read_field(data, off + 1, {len}).trim_end().to_string()"),
+                };
+                if assign {
+                    writeln!(out, "        out.{name} = {read}; off += {len};").unwrap();
+                } else {
+                    writeln!(out,
+                        "        {{ let v = {read}; if v != out.{name} {{ return Err(AeatError::InvalidDelimiter {{ context: \"{ctx}\".to_string(), expected: out.{name}.clone(), got: v }}); }} off += {len}; }}").unwrap();
                 }
             }
         }
