@@ -127,3 +127,42 @@ field a { at = 1 length = 10 type = number decimals = 2 }
     let errors = errors_of(src);
     assert!(errors.iter().any(|m| m.contains("decimals")));
 }
+
+#[test]
+fn record_blocks_parse() {
+    let src = r#"
+model "303" version "1" { encoding = "ISO-8859-1" line_ending = "CRLF" record_length = 10 }
+record "page1" {
+    record_length = 10
+    field a { at = 1 length = 5 type = alphanumeric }
+    field b { at = 6 length = 5 type = alphanumeric }
+}
+record "page2" {
+    record_length = 20
+    field c { at = 1 length = 20 type = alphanumeric }
+}
+"#;
+    let file = boeidl::parse(src).expect("parse");
+    assert_eq!(file.records.len(), 2);
+    assert_eq!(file.records[0].name, "page1");
+    assert_eq!(file.records[0].record_length, 10);
+    assert_eq!(file.records[1].name, "page2");
+    assert_eq!(file.records[1].record_length, 20);
+    let diags = boeidl::validate(&file);
+    let errors: Vec<_> = diags
+        .iter()
+        .filter(|d| d.level == boeidl::validator::DiagLevel::Error)
+        .collect();
+    assert!(errors.is_empty(), "unexpected errors: {errors:?}");
+}
+
+#[test]
+fn mixing_top_level_and_record_blocks_errors() {
+    let src = r#"
+model "X" version "1" { encoding = "ISO-8859-1" line_ending = "CRLF" record_length = 10 }
+field a { at = 1 length = 5 type = alphanumeric }
+record "page1" { record_length = 5 field b { at = 1 length = 5 type = alphanumeric } }
+"#;
+    let err = boeidl::parse(src).unwrap_err();
+    assert!(format!("{err}").contains("cannot mix"), "got: {err}");
+}

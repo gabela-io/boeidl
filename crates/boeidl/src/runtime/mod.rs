@@ -8,7 +8,13 @@ pub mod encode;
 pub mod errors;
 pub mod sanitize;
 
-pub use bytes::{parse_signed_amount, read_field, write_field};
-pub use encode::{encode_number, encode_signed_amount, pad_left, pad_right};
+pub use bytes::{
+    append_latin1, parse_signed_amount, parse_signed_amount_n, parse_unsigned_amount, read_field,
+    verify_literal, write_field,
+};
+pub use encode::{
+    encode_number, encode_signed_amount, encode_signed_amount_n, encode_unsigned_amount, pad_left,
+    pad_right,
+};
 pub use errors::{AeatDiagnostic, AeatError, Severity};
 pub use sanitize::{sanitize_alpha, sanitize_alphanumeric};

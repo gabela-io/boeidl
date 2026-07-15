@@ -1,5 +1,8 @@
 //! Minimal demo: populate a Mod130, derive, marshal, write to stdout.
 
+// Field-by-field assignment reads clearer than a struct literal for this demo.
+#![allow(clippy::field_reassign_with_default)]
+
 use boeidl_example::generated::{Mod130, MODEL_NUMBER, MODEL_VERSION, RECORD_LENGTH};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

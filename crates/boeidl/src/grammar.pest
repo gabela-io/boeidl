@@ -8,6 +8,13 @@ string = ${ "\"" ~ inner ~ "\"" }
 inner  = @{ (!"\"" ~ ANY)* }
 int    = @{ ASCII_DIGIT+ }
 
+// Plantilla: literal + interpolaciones ${ident}. Compound-atomic para NO
+// tragarse los espacios (son significativos: el layout es de ancho fijo).
+template  = ${ "\"" ~ tmpl_part* ~ "\"" }
+tmpl_part = ${ tmpl_ref | tmpl_text }
+tmpl_ref  = ${ "${" ~ ident ~ "}" }
+tmpl_text = @{ (!("\"" | "${") ~ ANY)+ }
+
 // ── model ──────────────────────────────────────────────────────────────
 model_block = { "model" ~ string ~ "version" ~ string ~ "{" ~ model_attr* ~ "}" }
 model_attr  = { ident ~ "=" ~ (string | int) }
@@ -53,6 +60,23 @@ mul_op      = { "*" | "/" }
 atom        = { func_call | int | string | ident | "(" ~ expr ~ ")" }
 func_call   = { ident ~ "(" ~ expr ~ ("," ~ expr)* ~ ")" }
 
+// ── record ─────────────────────────────────────────────────────────────
+record_block = { "record" ~ string ~ "{"
+    ~ (record_length_kv | field_block | derive_stmt | check_block)*
+    ~ "}" }
+record_length_kv = { "record_length" ~ "=" ~ int }
+
+// ── param (valor compartido a nivel fichero) ─────────────────────────────
+param_block = { "param" ~ ident ~ "{" ~ field_attr* ~ "}" }
+
+// ── envelope (sobre) ─────────────────────────────────────────────────────
+envelope_block = { "envelope" ~ "{"
+    ~ (param_block | env_header | env_trailer | env_contains)*
+    ~ "}" }
+env_header   = { "header"  ~ "=" ~ template }
+env_trailer  = { "trailer" ~ "=" ~ template }
+env_contains = { "contains" ~ "=" ~ "[" ~ ident ~ ("," ~ ident)* ~ "]" }
+
 // ── top-level file ─────────────────────────────────────────────────────
-item = _{ field_block | derive_stmt | check_block }
+item = _{ record_block | envelope_block | field_block | derive_stmt | check_block }
 file = { SOI ~ model_block ~ item* ~ EOI }
